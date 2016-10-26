@@ -1,0 +1,7 @@
+language: objective-c
+osx_image: xcode8
+xcode_project: Stratus.xcodeproj
+xcode_scheme: Stratus
+xcode_sdk: iphonesimulator10
+script:
+- xcodebuild clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -project Stratus.xcodeproj -scheme Stratus
