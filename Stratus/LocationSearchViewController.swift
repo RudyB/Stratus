@@ -22,8 +22,8 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 	let geocoder = CLGeocoder()
 	
 	var searchActive : Bool = false
-	var locations:[LocationData]?
-	var filtered:[LocationData?] = []
+	var locations:[Location]?
+	var filtered:[Location?] = []
 	var currentLocation: CLLocationCoordinate2D?
 	var region: CLCircularRegion?
 	
@@ -75,10 +75,10 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 				print("Error", error)
 			}
 			if let placemarks = placemarks {
-				self.filtered = placemarks.map({ (placemark) -> LocationData? in
+				self.filtered = placemarks.map({ (placemark) -> Location? in
 					
 					guard let city = placemark.locality, let state = placemark.administrativeArea, let coordinate = placemark.location?.coordinate else { return nil}
-					return LocationData(coordinates: coordinate, city: city, state: state)
+					return Location(coordinate: coordinate, city: city, state: state)
 				})
 			}
 		})
@@ -143,7 +143,7 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 	// MARK: Helper Functions
 	
 	func loadLocations() -> Bool {
-		guard let locationData = UserDefaults.standard.object(forKey: "savedUserLocations") as? Data, let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [LocationData] else {
+		guard let locationData = UserDefaults.standard.object(forKey: "savedUserLocations") as? Data, let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [Location] else {
 			return false
 		}
 		self.locations = locationArray

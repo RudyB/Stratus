@@ -26,7 +26,7 @@ class DailyWeatherTableViewCell: UITableViewCell {
 	@IBOutlet weak var dailyTableViewHighTempLabel: UILabel!
 }
 
-class GenericWeatherLocationViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDelegate, UITableViewDataSource, PZPullToRefreshDelegate, CLLocationManagerDelegate, TestWeather{
+class GenericWeatherLocationViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDelegate, UITableViewDataSource, PZPullToRefreshDelegate, CLLocationManagerDelegate {
 	
 	// MARK: - IBOutlets
 	
@@ -72,14 +72,15 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	// MARK: - Class Variables
 	lazy var forecastAPIClient = ForecastAPIClient(APIKey: "cf79775fc8706066d8edada44ca32ccc")
 	
-	var locationData: LocationData!
+	var location: Location!
 	var weatherData: WeatherData?
 	var refreshHeaderView: PZPullToRefreshView?
 	let activityIndicatorHelper = ActivityIndicatorHelper()
 	var itemIndex: Int = 0
 	
 	var usesLocationServices:Bool = false
-	var locationManager: CLLocationManager!
+	
+	lazy var locationManager = LocationManager()
 	
 	
 	// MARK: - Default ViewController Methods
@@ -92,12 +93,17 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		self.usesLocationServices = locationData.useLocationServices
+		
 		if usesLocationServices {
-			locationManager = CLLocationManager()
-			locationManager.delegate = self
-			locationManager.requestWhenInUseAuthorization()
-			locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+			locationManager.getPermission()
+			locationManager.onLocationFix = { [weak self] result in
+				switch result {
+				case .failure(let error):
+					break
+				case .success(let currentLocation):
+					self?.location = currentLocation
+				}
+			}
 		}
 		initializeView()
 		
@@ -132,7 +138,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		if usesLocationServices {
 			currentLocationLabel.text = "Loading Location"
 		} else {
-			currentLocationLabel.text = "\(locationData!.city!), \(locationData!.state!)"
+			currentLocationLabel.text = "\(location.city), \(location.state)"
 		}
 		currentTemperatureLabel.text = "--"
 		currentSummaryLabel.text = ""
@@ -178,9 +184,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		humidityValueLabel.text = weather.currentWeather.humidityString
 		currentSummaryLabel.text = weather.currentWeather.summary
 		currentWeatherIcon.image = weather.currentWeather.icon
-		if let city = locationData.city, let state = locationData.state {
-			currentLocationLabel.text = "\(city), \(state)"
-		}
+		currentLocationLabel.text = location.description
 		dailyHighTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMax))
 		dailyLowTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMin))
 		
@@ -210,12 +214,19 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	
 	// MARK: - Update Weather Method
 	func updateWeather() {
-		self.locationHasBeenSet = false
 		activityIndicatorHelper.showActivityIndicator(self.view)
 		if usesLocationServices {
 			if allConnectionsEnabled(){
-				self.locationManager.requestLocation()
-				NSLog("Requesting Location")
+				locationManager.updateLocation()
+				locationManager.onLocationFix = { [weak self] result in
+					switch result {
+					case .failure(let error):
+						break
+					case .success(let currentLocation):
+						self?.location = currentLocation
+						self?.fetchCurrentWeather()
+					}
+				}
 			}
 		} else {
 			if activeInternetConnection() {
@@ -228,7 +239,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	// MARK: - Fetch Weather Data Method
 	func fetchCurrentWeather(){
 		NSLog("Attemping to Update Weather Data")
-		if let locationData = locationData, let coordinates = locationData.coordinates {
+		if let locationData = location, let coordinates = locationData.coordinates {
 			forecastAPIClient.fetchAllWeatherData(coordinates){ result in
 				DispatchQueue.main.async{
 					self.endPullToRefresh()
@@ -275,7 +286,6 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 			case .notDetermined:
 				self.endPullToRefresh()
 				self.stopRefreshIndicator()
-				self.locationManager.requestWhenInUseAuthorization()
 				return false
 			case .restricted, .denied:
 				self.endPullToRefresh()
@@ -387,68 +397,6 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 	}
 	
-	// MARK: CLLocationManagerDelegate
-	
-	var locationHasBeenSet = false
-	
-	func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-		if status == .authorizedWhenInUse || status == .authorizedAlways{
-			if CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
-				if CLLocationManager.isRangingAvailable() {
-					NSLog("Location Services has been enabled")
-					NSLog("Weather Call from locationManager")
-					self.locationManager.requestLocation()
-					
-				}
-			}
-		}
-	}
-	
-	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-		DispatchQueue.main.async {
-			self.locationManager.stopUpdatingLocation()
-		}
-		if let location = manager.location {
-			let coordinates = location.coordinate
-			CLGeocoder().reverseGeocodeLocation(location, completionHandler: {(placemarks, error) -> Void in
-				if (error != nil) {
-					self.endPullToRefresh()
-					self.stopRefreshIndicator()
-					self.showAlert("Location Could Not Be Determined", message: "Please Try Again")
-					print("ERROR:" + error!.localizedDescription)
-					return
-				}
-				if let placemarks = placemarks {
-					if placemarks.count > 0 {
-						let pm = placemarks[0] as CLPlacemark
-						if !self.locationHasBeenSet {
-							if let city = pm.locality, let state = pm.administrativeArea {
-							let currentLocation = LocationData(coordinates: coordinates, city: city, state: state)
-							self.locationData = currentLocation
-							NSLog("Location Determined: \(city), \(state)")
-							self.fetchCurrentWeather()
-							self.locationHasBeenSet = true
-							return
-							}
-						}
-					} else {
-						print("Error with location data")
-					}
-				}
-			})
-		}
-	}
-	
-	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-		print("Error:" + error.localizedDescription)
-		self.showAlert("Failed to update location", message: "Please try again")
-		NSLog("Error in Location Manager with didFailWithError")
-	}
-	
-	enum LocationError: Error {
-		case couldNotDetermineLocation
-		case locationServicesNotEnabled
-	}
 	
 	// MARK: - Helper Methods
 	
@@ -467,11 +415,10 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		let locationData = UserDefaults.standard.object(forKey: "savedUserLocations") as? Data
 		
 		if let locationData = locationData {
-			let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [LocationData]
-			if let locationArray = locationArray, let city = self.locationData.city, let state = self.locationData.state {
-				locationArray[itemIndex].city = city
-				locationArray[itemIndex].state = state
-				locationArray[itemIndex].currentWeather = weatherData?.currentWeather
+			let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [Location]
+			if let locationArray = locationArray {
+				locationArray[itemIndex].city = self.location.city
+				locationArray[itemIndex].state = self.location.state
 				let locationData = NSKeyedArchiver.archivedData(withRootObject: locationArray)
 				UserDefaults.standard.set(locationData, forKey: "savedUserLocations")
 			}

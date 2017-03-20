@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D6180540E104E79D7486AAD /* Pods_Stratus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D199262E907B528399AF675 /* Pods_Stratus.framework */; };
+		475CAE191E7FA388001A9036 /* PageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475CAE181E7FA388001A9036 /* PageViewController.swift */; };
 		478F00CB1DC0797400C58290 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00CA1DC0797400C58290 /* AppDelegate.swift */; };
 		478F00D01DC0797400C58290 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 478F00CE1DC0797400C58290 /* Main.storyboard */; };
 		478F00D21DC0797400C58290 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 478F00D11DC0797400C58290 /* Assets.xcassets */; };
@@ -20,15 +22,19 @@
 		478F00EB1DC07A4400C58290 /* WeatherModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00E91DC07A4400C58290 /* WeatherModel.swift */; };
 		478F00EE1DC07A7E00C58290 /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00ED1DC07A7E00C58290 /* LocationData.swift */; };
 		478F00F21DC07AA600C58290 /* LocationSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00F01DC07AA600C58290 /* LocationSearchViewController.swift */; };
-		478F00F31DC07AA600C58290 /* PageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00F11DC07AA600C58290 /* PageViewController.swift */; };
 		478F00F51DC07AAF00C58290 /* SettingsPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00F41DC07AAF00C58290 /* SettingsPageViewController.swift */; };
 		478F00F91DC07AE200C58290 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00F71DC07AE200C58290 /* Reachability.swift */; };
 		478F00FC1DC07AEB00C58290 /* ActivityIndicatorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00FA1DC07AEB00C58290 /* ActivityIndicatorHelper.swift */; };
 		478F00FD1DC07AEB00C58290 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00FB1DC07AEB00C58290 /* APIClient.swift */; };
 		478F00FF1DC07B3000C58290 /* PZPullToRefreshView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00FE1DC07B3000C58290 /* PZPullToRefreshView.swift */; };
+		47AB1E4D1E7F6488004D78DA /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AB1E4C1E7F6488004D78DA /* LocationManager.swift */; };
+		47AB1E4F1E7F6BF1004D78DA /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AB1E4E1E7F6BF1004D78DA /* Error.swift */; };
+		47AB1E511E7F6BF9004D78DA /* CustomAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AB1E501E7F6BF9004D78DA /* CustomAlert.swift */; };
+		47C72F831E8054CB00FF029D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C72F821E8054CB00FF029D /* ViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		475CAE181E7FA388001A9036 /* PageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageViewController.swift; sourceTree = "<group>"; };
 		478F00C71DC0797400C58290 /* Stratus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stratus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		478F00CA1DC0797400C58290 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		478F00CF1DC0797400C58290 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -44,12 +50,18 @@
 		478F00E91DC07A4400C58290 /* WeatherModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherModel.swift; sourceTree = "<group>"; };
 		478F00ED1DC07A7E00C58290 /* LocationData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
 		478F00F01DC07AA600C58290 /* LocationSearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSearchViewController.swift; sourceTree = "<group>"; };
-		478F00F11DC07AA600C58290 /* PageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PageViewController.swift; sourceTree = "<group>"; };
 		478F00F41DC07AAF00C58290 /* SettingsPageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsPageViewController.swift; sourceTree = "<group>"; };
 		478F00F71DC07AE200C58290 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		478F00FA1DC07AEB00C58290 /* ActivityIndicatorHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorHelper.swift; sourceTree = "<group>"; };
 		478F00FB1DC07AEB00C58290 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		478F00FE1DC07B3000C58290 /* PZPullToRefreshView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PZPullToRefreshView.swift; path = PZPullToRefresh/PZPullToRefreshView.swift; sourceTree = "<group>"; };
+		47AB1E4C1E7F6488004D78DA /* LocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		47AB1E4E1E7F6BF1004D78DA /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		47AB1E501E7F6BF9004D78DA /* CustomAlert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomAlert.swift; sourceTree = "<group>"; };
+		47C72F821E8054CB00FF029D /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		49F6F81C23BF34A51B8F67DD /* Pods-Stratus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stratus.release.xcconfig"; path = "Pods/Target Support Files/Pods-Stratus/Pods-Stratus.release.xcconfig"; sourceTree = "<group>"; };
+		6D199262E907B528399AF675 /* Pods_Stratus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Stratus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB7A729CB522A8E58CCC3D63 /* Pods-Stratus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Stratus.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Stratus/Pods-Stratus.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D6180540E104E79D7486AAD /* Pods_Stratus.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +81,8 @@
 			children = (
 				478F00C91DC0797400C58290 /* Stratus */,
 				478F00C81DC0797400C58290 /* Products */,
+				84B8E744EA1484BBEBEBC665 /* Pods */,
+				68295247CD7F43D5D4F1AAD7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -127,10 +142,11 @@
 		478F00EF1DC07A8600C58290 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				478F00F11DC07AA600C58290 /* PageViewController.swift */,
 				478F00DF1DC07A0400C58290 /* GenericWeatherLocationViewController.swift */,
 				478F00F01DC07AA600C58290 /* LocationSearchViewController.swift */,
 				478F00F41DC07AAF00C58290 /* SettingsPageViewController.swift */,
+				475CAE181E7FA388001A9036 /* PageViewController.swift */,
+				47C72F821E8054CB00FF029D /* ViewController.swift */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -148,10 +164,30 @@
 		478F01011DC07B5E00C58290 /* API */ = {
 			isa = PBXGroup;
 			children = (
+				47AB1E501E7F6BF9004D78DA /* CustomAlert.swift */,
+				47AB1E4E1E7F6BF1004D78DA /* Error.swift */,
 				478F00FB1DC07AEB00C58290 /* APIClient.swift */,
 				478F00DE1DC07A0400C58290 /* ForecastClient.swift */,
+				47AB1E4C1E7F6488004D78DA /* LocationManager.swift */,
 			);
 			name = API;
+			sourceTree = "<group>";
+		};
+		68295247CD7F43D5D4F1AAD7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6D199262E907B528399AF675 /* Pods_Stratus.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		84B8E744EA1484BBEBEBC665 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				AB7A729CB522A8E58CCC3D63 /* Pods-Stratus.debug.xcconfig */,
+				49F6F81C23BF34A51B8F67DD /* Pods-Stratus.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -161,9 +197,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 478F00D91DC0797400C58290 /* Build configuration list for PBXNativeTarget "Stratus" */;
 			buildPhases = (
+				57B3CE042B44BD9405BE1176 /* [CP] Check Pods Manifest.lock */,
 				478F00C31DC0797400C58290 /* Sources */,
 				478F00C41DC0797400C58290 /* Frameworks */,
 				478F00C51DC0797400C58290 /* Resources */,
+				05CE1F734DFE4E596D8BD289 /* [CP] Embed Pods Frameworks */,
+				D081C18D2668018851AA7465 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -222,26 +261,78 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		05CE1F734DFE4E596D8BD289 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Stratus/Pods-Stratus-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		57B3CE042B44BD9405BE1176 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		D081C18D2668018851AA7465 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Stratus/Pods-Stratus-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		478F00C31DC0797400C58290 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				478F00F91DC07AE200C58290 /* Reachability.swift in Sources */,
+				47AB1E4D1E7F6488004D78DA /* LocationManager.swift in Sources */,
 				478F00E41DC07A0400C58290 /* GenericWeatherLocationViewController.swift in Sources */,
 				478F00E31DC07A0400C58290 /* ForecastClient.swift in Sources */,
 				478F00FD1DC07AEB00C58290 /* APIClient.swift in Sources */,
 				478F00E21DC07A0400C58290 /* DailyWeather.swift in Sources */,
-				478F00F31DC07AA600C58290 /* PageViewController.swift in Sources */,
+				47AB1E511E7F6BF9004D78DA /* CustomAlert.swift in Sources */,
 				478F00EE1DC07A7E00C58290 /* LocationData.swift in Sources */,
 				478F00FF1DC07B3000C58290 /* PZPullToRefreshView.swift in Sources */,
 				478F00FC1DC07AEB00C58290 /* ActivityIndicatorHelper.swift in Sources */,
+				47C72F831E8054CB00FF029D /* ViewController.swift in Sources */,
 				478F00F21DC07AA600C58290 /* LocationSearchViewController.swift in Sources */,
 				478F00EB1DC07A4400C58290 /* WeatherModel.swift in Sources */,
 				478F00E11DC07A0400C58290 /* CurrentWeather.swift in Sources */,
 				478F00EA1DC07A4400C58290 /* WeatherIcon.swift in Sources */,
+				475CAE191E7FA388001A9036 /* PageViewController.swift in Sources */,
 				478F00CB1DC0797400C58290 /* AppDelegate.swift in Sources */,
 				478F00E51DC07A0400C58290 /* HourlyWeather.swift in Sources */,
+				47AB1E4F1E7F6BF1004D78DA /* Error.swift in Sources */,
 				478F00F51DC07AAF00C58290 /* SettingsPageViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,6 +456,7 @@
 		};
 		478F00DA1DC0797400C58290 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AB7A729CB522A8E58CCC3D63 /* Pods-Stratus.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = NZ8449Y9W6;
@@ -378,6 +470,7 @@
 		};
 		478F00DB1DC0797400C58290 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49F6F81C23BF34A51B8F67DD /* Pods-Stratus.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = NZ8449Y9W6;

@@ -8,59 +8,40 @@
 
 import Foundation
 import CoreLocation
+import RealmSwift
 
-class LocationData: NSObject{
-	let coordinates: CLLocationCoordinate2D?
-	var city: String?
-	var state: String?
-	var currentWeather: CurrentWeather?
-	let useLocationServices: Bool
+class Location: Object {
+	dynamic var coordinates: Coordinate?
+	dynamic var city: String = ""
+	dynamic var state: String = ""
 	
-	init(coordinates: CLLocationCoordinate2D, city: String, state: String){
-		self.coordinates = coordinates
+	convenience init(coordinate: CLLocationCoordinate2D, city: String, state: String) {
+		self.init()
+		self.coordinates = Coordinate(coordinate)
 		self.city = city
 		self.state = state
-		self.useLocationServices = false
-		self.currentWeather = nil
 	}
 	
-	init(useLocationServices: Bool){
-		self.useLocationServices = true
-		self.city = nil
-		self.coordinates = nil
-		self.state = nil
-		self.currentWeather = nil
+	
+	override var description: String {
+		return "\(city), \(state)"
 	}
 	
-	required init(coder aDecoder: NSCoder) {
-		let latitude = aDecoder.decodeObject(forKey: "latitude") as? Double
-		let longitude = aDecoder.decodeObject(forKey: "longitude") as? Double
-		if let latitude = latitude, let longitude = longitude {
-			self.coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-		} else {
-			self.coordinates = nil
-		}
-		self.city = aDecoder.decodeObject(forKey: "city") as? String
-		self.state = aDecoder.decodeObject(forKey: "state") as? String
-		self.currentWeather = aDecoder.decodeObject(forKey: "currentWeather") as? CurrentWeather
-		self.useLocationServices = aDecoder.decodeBool(forKey: "useLocationServices")
+}
+
+class Coordinate: Object {
+	dynamic var latitude: Double = 0.0
+	dynamic var longitude: Double = 0.0
+	
+	convenience init(latitude: Double, longitude: Double) {
+		self.init()
+		self.latitude = latitude
+		self.longitude = longitude
 	}
 	
-	func encodeWithCoder(_ aCoder: NSCoder!) {
-		let latitude = coordinates?.latitude as Double?
-		let longitude = coordinates?.longitude as Double?
-		aCoder.encode(latitude, forKey: "latitude")
-		aCoder.encode(longitude, forKey: "longitude")
-		aCoder.encode(city, forKey: "city")
-		aCoder.encode(state, forKey: "state")
-		aCoder.encode(currentWeather, forKey: "currentWeather")
-		aCoder.encode(useLocationServices, forKey: "useLocationServices")
-	}
-	
-	var prettyLocationName: String? {
-		if let city = city, let state = state {
-			return "\(city), \(state)"
-		}
-		return nil
+	convenience init(_ coordinate: CLLocationCoordinate2D) {
+		self.init()
+		self.latitude = coordinate.latitude
+		self.longitude = coordinate.longitude
 	}
 }

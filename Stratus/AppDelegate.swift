@@ -16,12 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 		UIApplication.shared.statusBarStyle = .lightContent
-		if(UIApplication.instancesRespond(to: #selector(UIApplication.registerUserNotificationSettings(_:)))) {
-			let notificationCategory:UIMutableUserNotificationCategory = UIMutableUserNotificationCategory()
-			notificationCategory.identifier = "INVITE_CATEGORY"
-			//registerting for the notification.
-			application.registerUserNotificationSettings(UIUserNotificationSettings(types:[.badge], categories: nil))
-		} else {}
         return true
     }
 

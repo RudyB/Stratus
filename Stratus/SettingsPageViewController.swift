@@ -20,12 +20,11 @@ class SettingsPageViewController: UIViewController, UITableViewDelegate, UITable
 	@IBOutlet weak var locationsTableView: UITableView!
 	
 	@IBOutlet weak var navigationBar: UINavigationBar!
-	var delegate: RootTableViewDelegate?
 	
 	@IBAction func backButtonAction(_ sender: UIBarButtonItem) {
 		dismiss(animated: true, completion: nil)	
 	}
-	var locations:[LocationData]?
+	var locations:[Location]?
 	
 	override func viewWillAppear(_ animated: Bool) {
 		loadPlaces()
@@ -58,12 +57,12 @@ class SettingsPageViewController: UIViewController, UITableViewDelegate, UITable
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = self.locationsTableView.dequeueReusableCell(withIdentifier: "settingsTableViewCell") as! SettingsTableViewCell
 		if let location = locations?[(indexPath as NSIndexPath).item] {
-			cell.locationLabel.text = location.prettyLocationName
-			let currentWeather = location.currentWeather
-			if let currentWeather = currentWeather {
-				cell.weatherIcon.image = currentWeather.icon
-				cell.currentTemperatureLabel.text = currentWeather.temperatureString
-			}
+			cell.locationLabel.text = location.description
+//			let currentWeather = location.currentWeather
+//			if let currentWeather = currentWeather {
+//				cell.weatherIcon.image = currentWeather.icon
+//				cell.currentTemperatureLabel.text = currentWeather.temperatureString
+//			}
 			return cell
 		}
 		return cell
@@ -109,7 +108,7 @@ class SettingsPageViewController: UIViewController, UITableViewDelegate, UITable
 		let locationData = UserDefaults.standard.object(forKey: "savedUserLocations") as? Data
 		
 		if let locationData = locationData {
-			let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [LocationData]
+			let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [Location]
 			
 			if let locationArray = locationArray {
 				self.locations = locationArray
