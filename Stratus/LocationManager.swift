@@ -69,7 +69,7 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
 						return
 					}
 					
-					onLocationFix(.success(Location(coordinate: currLocation.coordinate, city: city, state: state)))
+					onLocationFix(.success(Location(coordinates: Coordinate(currLocation.coordinate), city: city, state: state)))
 				}
 			}
 			

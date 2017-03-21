@@ -7,18 +7,19 @@
 //
 
 import UIKit
-import RealmSwift
 
-
-class WeatherData: Object {
-	var  dailyWeather = List<DailyWeather>()
-	var hourlyWeather = List<HourlyWeather>()
-	dynamic var currentWeather: CurrentWeather = CurrentWeather()
+protocol Weather: JSONDecodable {
+	var temperature: Double { get }
+	var humidity: Double { get }
+	var precipitationProbability: Double { get }
+	var summary: String { get }
+	var icon: UIImage { get }
 	
-	convenience init(dailyWeather: List<DailyWeather>, hourlyWeather: List<HourlyWeather>, currentWeather: CurrentWeather) {
-		self.init()
-		self.dailyWeather = dailyWeather
-		self.hourlyWeather = hourlyWeather
-		self.currentWeather = currentWeather
-	}
+	init?(JSON: [String : AnyObject])
+}
+
+struct WeatherData{
+	let dailyWeather: [DailyWeather]
+	let hourlyWeather: [HourlyWeather]
+	let currentWeather: CurrentWeather
 }

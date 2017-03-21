@@ -8,40 +8,61 @@
 
 import Foundation
 import CoreLocation
-import RealmSwift
 
-class Location: Object {
-	dynamic var coordinates: Coordinate?
-	dynamic var city: String = ""
-	dynamic var state: String = ""
+
+class Location: NSObject{
+	let coordinates: Coordinate?
+	var city: String?
+	var state: String?
 	
-	convenience init(coordinate: CLLocationCoordinate2D, city: String, state: String) {
-		self.init()
-		self.coordinates = Coordinate(coordinate)
+	init(coordinates: Coordinate, city: String, state: String){
+		self.coordinates = coordinates
 		self.city = city
 		self.state = state
 	}
 	
 	
-	override var description: String {
-		return "\(city), \(state)"
+	required init(coder aDecoder: NSCoder) {
+		let latitude = aDecoder.decodeObject(forKey: "latitude") as? Double
+		let longitude = aDecoder.decodeObject(forKey: "longitude") as? Double
+		if let latitude = latitude, let longitude = longitude {
+			self.coordinates = Coordinate(latitude: latitude, longitude: longitude)
+		} else {
+			self.coordinates = nil
+		}
+		self.city = aDecoder.decodeObject(forKey: "city") as? String
+		self.state = aDecoder.decodeObject(forKey: "state") as? String
 	}
 	
+	func encodeWithCoder(_ aCoder: NSCoder!) {
+		let latitude = coordinates?.latitude as Double?
+		let longitude = coordinates?.longitude as Double?
+		aCoder.encode(latitude, forKey: "latitude")
+		aCoder.encode(longitude, forKey: "longitude")
+		aCoder.encode(city, forKey: "city")
+		aCoder.encode(state, forKey: "state")
+	}
+	
+
+	
+	var prettyLocationName: String? {
+		if let city = city, let state = state {
+			return "\(city), \(state)"
+		}
+		return nil
+	}
 }
 
-class Coordinate: Object {
-	dynamic var latitude: Double = 0.0
-	dynamic var longitude: Double = 0.0
+class Coordinate: NSObject {
+	let latitude: Double
+	let longitude: Double
 	
-	convenience init(latitude: Double, longitude: Double) {
-		self.init()
+	init(latitude: Double, longitude: Double) {
 		self.latitude = latitude
 		self.longitude = longitude
 	}
 	
 	convenience init(_ coordinate: CLLocationCoordinate2D) {
-		self.init()
-		self.latitude = coordinate.latitude
-		self.longitude = coordinate.longitude
+		self.init(latitude: coordinate.latitude, longitude: coordinate.longitude)
 	}
 }

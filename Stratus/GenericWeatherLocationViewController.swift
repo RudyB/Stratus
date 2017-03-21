@@ -72,8 +72,8 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	// MARK: - Class Variables
 	lazy var forecastAPIClient = ForecastAPIClient(APIKey: "cf79775fc8706066d8edada44ca32ccc")
 	
-	var location: Location!
-	var weatherData: WeatherData?
+	var page: Page!
+	var updatePersistantData: ((Page, Int) -> Void)?
 	var refreshHeaderView: PZPullToRefreshView?
 	let activityIndicatorHelper = ActivityIndicatorHelper()
 	var itemIndex: Int = 0
@@ -93,15 +93,16 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
+		usesLocationServices = page.usesLocationServices!
 		if usesLocationServices {
 			locationManager.getPermission()
 			locationManager.onLocationFix = { [weak self] result in
 				switch result {
 				case .failure(let error):
+					print(error.localizedDescription)
 					break
 				case .success(let currentLocation):
-					self?.location = currentLocation
+					self?.page.location = currentLocation
 				}
 			}
 		}
@@ -138,7 +139,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		if usesLocationServices {
 			currentLocationLabel.text = "Loading Location"
 		} else {
-			currentLocationLabel.text = "\(location.city), \(location.state)"
+			currentLocationLabel.text = page.location?.prettyLocationName!
 		}
 		currentTemperatureLabel.text = "--"
 		currentSummaryLabel.text = ""
@@ -165,7 +166,10 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	}
 	
 	func display(_ weather: WeatherData) {
-		updatePersistentData()
+		if let updatePersistantData = self.updatePersistantData {
+			page.currentWeather = weather.currentWeather
+			updatePersistantData(self.page, itemIndex)
+		}
 		if usesLocationServices {
 			UIApplication.shared.applicationIconBadgeNumber = Int(weather.currentWeather.temperature)
 		}
@@ -184,7 +188,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		humidityValueLabel.text = weather.currentWeather.humidityString
 		currentSummaryLabel.text = weather.currentWeather.summary
 		currentWeatherIcon.image = weather.currentWeather.icon
-		currentLocationLabel.text = location.description
+		currentLocationLabel.text = page.location?.prettyLocationName!
 		dailyHighTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMax))
 		dailyLowTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMin))
 		
@@ -221,9 +225,10 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 				locationManager.onLocationFix = { [weak self] result in
 					switch result {
 					case .failure(let error):
+						print("Error Updating Location \(error.localizedDescription)")
 						break
 					case .success(let currentLocation):
-						self?.location = currentLocation
+						self?.page.location = currentLocation
 						self?.fetchCurrentWeather()
 					}
 				}
@@ -239,7 +244,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	// MARK: - Fetch Weather Data Method
 	func fetchCurrentWeather(){
 		NSLog("Attemping to Update Weather Data")
-		if let locationData = location, let coordinates = locationData.coordinates {
+		if let locationData = page.location, let coordinates = locationData.coordinates {
 			forecastAPIClient.fetchAllWeatherData(coordinates){ result in
 				DispatchQueue.main.async{
 					self.endPullToRefresh()
@@ -248,7 +253,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 				switch result {
 				case .success(let weatherData):
 					DispatchQueue.main.async{
-						self.weatherData = weatherData
+						self.page.weatherData = weatherData
 						self.display(weatherData)
 						self.hourlyWeatherCollectionView.reloadData()
 						self.dailyWeatherTableView.reloadData()
@@ -349,7 +354,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	let reuseIdentifier = "hourlyWeatherCollectionViewCell" // also enter this string as the cell identifier in the storyboard
 	
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		if let hourlyWeather = weatherData?.hourlyWeather {
+		if let hourlyWeather = page.weatherData?.hourlyWeather {
 			if hourlyWeather.count > 24 {
 				return 24
 			}
@@ -363,7 +368,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HourlyWeatherCollectionViewCell
-		if let hourlyWeatherData = weatherData?.hourlyWeather {
+		if let hourlyWeatherData = page.weatherData?.hourlyWeather {
 			cell.timeLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].timeString
 			cell.imageView.image = hourlyWeatherData[(indexPath as NSIndexPath).item].icon
 			cell.temperatureLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].temperatureString
@@ -374,7 +379,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	// MARK: UITableViewDelegate
 	
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		if let dailyWeatherData = weatherData?.dailyWeather {
+		if let dailyWeatherData = page.weatherData?.dailyWeather {
 			return dailyWeatherData.count - 1
 		} else {
 			return 0
@@ -383,7 +388,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = self.dailyWeatherTableView.dequeueReusableCell(withIdentifier: "dailyWeatherTableViewCell") as! DailyWeatherTableViewCell
-		if let dailyWeatherData = weatherData?.dailyWeather {
+		if let dailyWeatherData = page.weatherData?.dailyWeather {
 			let index = (indexPath as NSIndexPath).item + 1
 			cell.dayOfTheWeekLabel.text = dailyWeatherData[index].dateString
 			cell.dailyWeatherIcon.image = dailyWeatherData[index].icon
@@ -411,22 +416,8 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		activityIndicatorHelper.hideActivityIndicator(self.view)
 	}
 	
-	func updatePersistentData(){
-		let locationData = UserDefaults.standard.object(forKey: "savedUserLocations") as? Data
-		
-		if let locationData = locationData {
-			let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [Location]
-			if let locationArray = locationArray {
-				locationArray[itemIndex].city = self.location.city
-				locationArray[itemIndex].state = self.location.state
-				let locationData = NSKeyedArchiver.archivedData(withRootObject: locationArray)
-				UserDefaults.standard.set(locationData, forKey: "savedUserLocations")
-			}
-		}
-	}
-	
 	func getWeatherData() -> WeatherData? {
-		return weatherData
+		return self.page.weatherData
 	}
 	
 }

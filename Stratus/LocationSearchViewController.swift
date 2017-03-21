@@ -22,14 +22,14 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 	let geocoder = CLGeocoder()
 	
 	var searchActive : Bool = false
-	var locations:[Location]?
+	var pages: [Page]?
 	var filtered:[Location?] = []
 	var currentLocation: CLLocationCoordinate2D?
 	var region: CLCircularRegion?
 	
 	override func viewWillAppear(_ animated: Bool) {
-		loadLocations()
-		if let curLocCoord = locations?.first?.coordinates {
+		loadPages()
+		if let curLocCoord = pages?.first?.location?.coordinates {
 			currentLocation = CLLocationCoordinate2D(latitude: curLocCoord.latitude, longitude: curLocCoord.longitude)
 			region = CLCircularRegion(center: currentLocation!, radius: 50000, identifier: "Hint Region")
 		}
@@ -70,18 +70,18 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 	
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
 		
-		geocoder.geocodeAddressString(searchText, in: region, completionHandler: {(placemarks, error) -> Void in
-			if((error) != nil){
-				print("Error", error)
+		geocoder.geocodeAddressString(searchText, in: region) { (placemarks, error) -> Void in
+			if(error != nil){
+				print("Error", error!.localizedDescription)
 			}
 			if let placemarks = placemarks {
-				self.filtered = placemarks.map({ (placemark) -> Location? in
+				self.filtered = placemarks.map{ (placemark) -> Location? in
 					
 					guard let city = placemark.locality, let state = placemark.administrativeArea, let coordinate = placemark.location?.coordinate else { return nil}
-					return Location(coordinate: coordinate, city: city, state: state)
-				})
+					return Location(coordinates: Coordinate(coordinate), city: city, state: state)
+				}
 			}
-		})
+		}
 		
 		if(filtered.count == 0){
 			searchActive = false;
@@ -112,8 +112,8 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
 		if(searchActive){
-			if let city = filtered[(indexPath as NSIndexPath).row]?.city, let state = filtered[(indexPath as NSIndexPath).row]?.state {
-				cell.textLabel?.text = "\(city), \(state)"
+			if let item = filtered[indexPath.row], let name = item.prettyLocationName {
+				cell.textLabel?.text =  name
 			}
 			
 		}
@@ -124,16 +124,18 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 		if let item = filtered[(indexPath as NSIndexPath).row] {
 			var locationAlreadyExists = false
 			
-			locations?.map({ (locationData) -> Void in
-				if locationData.city == item.city {
+			pages?.forEach{ (page) in
+				if page.location?.city == item.city {
 					locationAlreadyExists = true
 				}
-			})
+			}
+			
 			if locationAlreadyExists {
 				showAlert("Location Already Exists", message: "Select another location")
 			} else {
-				locations?.append(item)
-				if saveLocations() {
+				let newPage = Page(location: item)
+				pages?.append(newPage)
+				if savePages() {
 					self.dismiss(animated: true, completion: nil)
 				}
 			}
@@ -142,22 +144,29 @@ class LocationSearchViewController: UIViewController, UITableViewDataSource, UIT
 	
 	// MARK: Helper Functions
 	
-	func loadLocations() -> Bool {
-		guard let locationData = UserDefaults.standard.object(forKey: "savedUserLocations") as? Data, let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [Location] else {
+	func loadPages(){
+		let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
+		
+		if let pagesData = pagesData {
+			let pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page]
+			
+			if let pageArray = pageArray {
+				self.pages = pageArray
+			}
+		}
+	}
+	
+	
+	func savePages() -> Bool {
+		guard let pageArray = pages else {
 			return false
 		}
-		self.locations = locationArray
+		let pageData = NSKeyedArchiver.archivedData(withRootObject: pageArray)
+		UserDefaults.standard.set(pageData, forKey: "savedUserPages")
 		return true
 	}
 	
-	func saveLocations() -> Bool {
-		guard let locationArray = locations else {
-			return false
-		}
-		let locationData = NSKeyedArchiver.archivedData(withRootObject: locationArray)
-		UserDefaults.standard.set(locationData, forKey: "savedUserLocations")
-		return true
-	}
+	
 	func showAlert(_ title: String, message: String? = nil, style: UIAlertControllerStyle = .alert, actionList:[UIAlertAction] = [UIAlertAction(title: "OK", style: .default, handler: nil)] ) {
 		let alert = UIAlertController(title: title, message: message, preferredStyle: style)
 		for action in actionList {

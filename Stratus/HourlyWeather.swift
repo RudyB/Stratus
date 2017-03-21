@@ -7,29 +7,18 @@
 //
 
 import UIKit
-import RealmSwift
 
-class HourlyWeather: Object {
-	
-	dynamic var temperature: Double = 0.0
-	dynamic var humidity: Double = 0.0
-	dynamic var precipitationProbability: Double = 0.0
-	dynamic var summary: String = ""
-	dynamic var iconString: String = ""
-	dynamic var time: Double = 0.0
-	
-	convenience init(temperature: Double, humidity: Double, precipitationProbability: Double, summary: String, iconString: String, time: Double) {
-		self.init()
-		self.temperature = temperature
-		self.humidity = humidity
-		self.precipitationProbability = precipitationProbability
-		self.summary = summary
-		self.iconString = iconString
-		self.time = time
-	}
-	
-	convenience required init?(JSON: [String : AnyObject]) {
-		self.init()
+struct HourlyWeather {
+	let temperature: Double
+	let humidity: Double
+	let precipitationProbability: Double
+	let summary: String
+	let icon: UIImage
+	let time: Double
+}
+
+extension HourlyWeather: JSONDecodable, Weather {
+	init?(JSON: [String : AnyObject]) {
 		guard let temperature = JSON["temperature"] as? Double,
 			let humidity = JSON["humidity"] as? Double,
 			let precipitationProbability = JSON["precipProbability"] as? Double,
@@ -39,11 +28,12 @@ class HourlyWeather: Object {
 				return nil
 		}
 		
+		let icon = WeatherIcon(rawValue: iconString).image
 		self.temperature = temperature
 		self.humidity = humidity
 		self.precipitationProbability = precipitationProbability
 		self.summary = summary
-		self.iconString = iconString
+		self.icon = icon
 		self.time = time
 	}
 }
@@ -66,8 +56,5 @@ extension HourlyWeather {
 		let dayTimePeriodFormatter = DateFormatter()
 		dayTimePeriodFormatter.dateFormat = "h a"
 		return dayTimePeriodFormatter.string(from: date)
-	}
-	var icon : UIImage {
-		return WeatherIcon(rawValue: iconString).image
 	}
 }

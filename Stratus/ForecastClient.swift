@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import RealmSwift
-
 
 enum Forecast: Endpoint {
 	case current(token: String, coordinate: Coordinate)
@@ -119,9 +117,9 @@ class ForecastAPIClient: APIClient {
 		let request = Forecast.current(token: self.token, coordinate: coordinate).request
 		
 		fetch(request: request, parse: { json -> WeatherData? in
-			var hourlyForecasts = List<HourlyWeather>()
-			var dailyForecasts = List<DailyWeather>()
-
+			var hourlyForecasts:[HourlyWeather] = []
+			var dailyForecasts: [DailyWeather] = []
+			
 			
 			if let hourlyWeatherDictionary = json["hourly"]?["data"] as? [[String:AnyObject]],
 				let dailyWeatherDictionary = json["daily"]?["data"] as? [[String:AnyObject]],
