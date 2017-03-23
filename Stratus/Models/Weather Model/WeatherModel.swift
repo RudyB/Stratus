@@ -23,8 +23,3 @@ struct WeatherData{
 	let hourlyWeather: [HourlyWeather]
 	let currentWeather: CurrentWeather
 }
-
-
-protocol TestWeather {
-	func getWeatherData() -> WeatherData?
-}

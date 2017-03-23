@@ -9,41 +9,29 @@
 import Foundation
 import CoreLocation
 
-class LocationData: NSObject{
-	let coordinates: CLLocationCoordinate2D?
+
+class Location: NSObject{
+	let coordinates: Coordinate?
 	var city: String?
 	var state: String?
-	var currentWeather: CurrentWeather?
-	let useLocationServices: Bool
 	
-	init(coordinates: CLLocationCoordinate2D, city: String, state: String){
+	init(coordinates: Coordinate, city: String, state: String){
 		self.coordinates = coordinates
 		self.city = city
 		self.state = state
-		self.useLocationServices = false
-		self.currentWeather = nil
 	}
 	
-	init(useLocationServices: Bool){
-		self.useLocationServices = true
-		self.city = nil
-		self.coordinates = nil
-		self.state = nil
-		self.currentWeather = nil
-	}
 	
 	required init(coder aDecoder: NSCoder) {
 		let latitude = aDecoder.decodeObject(forKey: "latitude") as? Double
 		let longitude = aDecoder.decodeObject(forKey: "longitude") as? Double
 		if let latitude = latitude, let longitude = longitude {
-			self.coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+			self.coordinates = Coordinate(latitude: latitude, longitude: longitude)
 		} else {
 			self.coordinates = nil
 		}
 		self.city = aDecoder.decodeObject(forKey: "city") as? String
 		self.state = aDecoder.decodeObject(forKey: "state") as? String
-		self.currentWeather = aDecoder.decodeObject(forKey: "currentWeather") as? CurrentWeather
-		self.useLocationServices = aDecoder.decodeBool(forKey: "useLocationServices")
 	}
 	
 	func encodeWithCoder(_ aCoder: NSCoder!) {
@@ -53,14 +41,28 @@ class LocationData: NSObject{
 		aCoder.encode(longitude, forKey: "longitude")
 		aCoder.encode(city, forKey: "city")
 		aCoder.encode(state, forKey: "state")
-		aCoder.encode(currentWeather, forKey: "currentWeather")
-		aCoder.encode(useLocationServices, forKey: "useLocationServices")
 	}
+	
+
 	
 	var prettyLocationName: String? {
 		if let city = city, let state = state {
 			return "\(city), \(state)"
 		}
 		return nil
+	}
+}
+
+class Coordinate: NSObject {
+	let latitude: Double
+	let longitude: Double
+	
+	init(latitude: Double, longitude: Double) {
+		self.latitude = latitude
+		self.longitude = longitude
+	}
+	
+	convenience init(_ coordinate: CLLocationCoordinate2D) {
+		self.init(latitude: coordinate.latitude, longitude: coordinate.longitude)
 	}
 }

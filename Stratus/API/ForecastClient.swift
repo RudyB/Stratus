@@ -6,13 +6,11 @@
 //
 
 import Foundation
-import CoreLocation
-
 
 enum Forecast: Endpoint {
-	case current(token: String, coordinate: CLLocationCoordinate2D)
-	case hourly(token: String, coordinate: CLLocationCoordinate2D)
-	case daily(token: String, coordinate: CLLocationCoordinate2D)
+	case current(token: String, coordinate: Coordinate)
+	case hourly(token: String, coordinate: Coordinate)
+	case daily(token: String, coordinate: Coordinate)
 	
 	var baseURL: URL {
 		return URL(string: "https://api.forecast.io")!
@@ -63,7 +61,7 @@ class ForecastAPIClient: APIClient {
 		self.init(config: URLSessionConfiguration.default, APIKey: APIKey)
 	}
 
-	func fetchCurrentWeather(_ coordinate: CLLocationCoordinate2D, completion: @escaping(APIResult<CurrentWeather>) -> Void) {
+	func fetchCurrentWeather(_ coordinate: Coordinate, completion: @escaping(APIResult<CurrentWeather>) -> Void) {
 		let request = Forecast.current(token: self.token, coordinate: coordinate).request
 		
 		fetch(request: request, parse: { json -> CurrentWeather? in
@@ -77,7 +75,7 @@ class ForecastAPIClient: APIClient {
 			}, completion: completion)
 	}
 	
-	func fetchDailyWeather(_ coordinate: CLLocationCoordinate2D, completion: @escaping (APIResult<[DailyWeather]>) -> Void) {
+	func fetchDailyWeather(_ coordinate: Coordinate, completion: @escaping (APIResult<[DailyWeather]>) -> Void) {
 		let request = Forecast.current(token: self.token, coordinate: coordinate).request
 		
 		fetch(request: request, parse: { json -> [DailyWeather]? in
@@ -96,7 +94,7 @@ class ForecastAPIClient: APIClient {
 			}, completion: completion)
 	}
 	
-	func fetchHourlyWeather(_ coordinate: CLLocationCoordinate2D, completion: @escaping (APIResult<[HourlyWeather]>) -> Void) {
+	func fetchHourlyWeather(_ coordinate: Coordinate, completion: @escaping (APIResult<[HourlyWeather]>) -> Void) {
 		let request = Forecast.current(token: self.token, coordinate: coordinate).request
 		
 		fetch(request: request, parse: { json -> [HourlyWeather]? in
@@ -115,12 +113,13 @@ class ForecastAPIClient: APIClient {
 			}, completion: completion)
 	}
 	
-	func fetchAllWeatherData(_ coordinate: CLLocationCoordinate2D, completion: @escaping (APIResult<WeatherData>) -> Void){
+	func fetchAllWeatherData(_ coordinate: Coordinate, completion: @escaping (APIResult<WeatherData>) -> Void){
 		let request = Forecast.current(token: self.token, coordinate: coordinate).request
 		
 		fetch(request: request, parse: { json -> WeatherData? in
 			var hourlyForecasts:[HourlyWeather] = []
 			var dailyForecasts: [DailyWeather] = []
+			
 			
 			if let hourlyWeatherDictionary = json["hourly"]?["data"] as? [[String:AnyObject]],
 				let dailyWeatherDictionary = json["daily"]?["data"] as? [[String:AnyObject]],
