@@ -15,36 +15,49 @@ class SettingsTableViewCell: UITableViewCell {
 	@IBOutlet weak var currentTemperatureLabel: UILabel!
 }
 
-class SettingsPageViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UINavigationBarDelegate {
-
+class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
+	
 	@IBOutlet weak var locationsTableView: UITableView!
 	
 	@IBOutlet weak var navigationBar: UINavigationBar!
 	
 	@IBAction func backButtonAction(_ sender: UIBarButtonItem) {
-		dismiss(animated: true, completion: nil)	
+		dismiss(animated: true, completion: nil)
 	}
+	
 	var pages:[Page]?
+	
+	lazy var notificationCenter: NotificationCenter = {
+		return NotificationCenter.default
+	}()
 	
 	override func viewWillAppear(_ animated: Bool) {
 		loadPages()
 		locationsTableView.reloadData()
-	}
-	
-    override func viewDidLoad() {
-        super.viewDidLoad()
 		self.navigationBar.delegate = self
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
+	}
 	
 	override var preferredStatusBarStyle: UIStatusBarStyle {
 		return .lightContent
 	}
 	
-	// MARK: UITableViewDelegate
+	func loadPages(){
+		let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
+		
+		if let pagesData = pagesData {
+			let pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page]
+			
+			if let pageArray = pageArray {
+				self.pages = pageArray
+			}
+		}
+	}
+	
+}
+
+extension SettingsPageViewController: UITableViewDataSource {
+	
+	// MARK: UITableViewDataSource
 	
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		guard let pages = pages else {
@@ -73,6 +86,11 @@ class SettingsPageViewController: UIViewController, UITableViewDelegate, UITable
 		}
 		
 	}
+}
+
+extension SettingsPageViewController : UITableViewDelegate {
+	
+	// MARK: UITableViewDelegate
 	
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 	}
@@ -88,38 +106,19 @@ class SettingsPageViewController: UIViewController, UITableViewDelegate, UITable
 				tableView.beginUpdates()
 				tableView.deleteRows(at: [indexPath], with: .automatic)
 				pages?.remove(at: indexPath.row)
-
+				
 				// FIXME: Force Unwrapped locations
 				let locationData = NSKeyedArchiver.archivedData(withRootObject: pages!)
 				UserDefaults.standard.set(locationData, forKey: "savedUserPages")
+				self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
 				tableView.reloadData()
 				tableView.endUpdates()
 			} else {
-				showAlert("Error", message: "You Cannot Delete Your Current Location")
+				showAlert(target: self, title: "Error", message: "You Cannot Delete Your Current Location")
+				
 				// TODO: Rudy - Make it so the delete that is shown on slide disappears
 			}
 			
 		}
 	}
-	
-	func showAlert(_ title: String, message: String? = nil, style: UIAlertControllerStyle = .alert, actionList:[UIAlertAction] = [UIAlertAction(title: "OK", style: .default, handler: nil)] ) {
-		let alert = UIAlertController(title: title, message: message, preferredStyle: style)
-		for action in actionList {
-			alert.addAction(action)
-		}
-		present(alert, animated: true, completion: nil)
-	}
-	
-	func loadPages(){
-		let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
-		
-		if let pagesData = pagesData {
-			let pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page]
-			
-			if let pageArray = pageArray {
-				self.pages = pageArray
-			}
-		}
-	}
-
 }

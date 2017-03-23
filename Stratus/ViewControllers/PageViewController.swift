@@ -8,54 +8,34 @@
 
 import UIKit
 
-class Page: NSObject {
-	var location: Location?
-	var weatherData: WeatherData?
-	var currentWeather: CurrentWeather?
-	var usesLocationServices: Bool? = false
+class PageViewController: UIViewController {
 	
-	init(location: Location?, weatherData: WeatherData? = nil, usesLocationServices: Bool = false) {
-		self.location = location
-		self.weatherData = weatherData
-		self.usesLocationServices = usesLocationServices
+	var pages: [Page]? {
+		didSet {
+			updatePages()
+		}
 	}
 	
-	required init(coder aDecoder: NSCoder) {
-		self.location = aDecoder.decodeObject(forKey: "location") as? Location
-		self.weatherData = aDecoder.decodeObject(forKey: "weatherData") as? WeatherData
-		self.currentWeather = aDecoder.decodeObject(forKey: "currentWeather") as? CurrentWeather
-		self.usesLocationServices = aDecoder.decodeObject(forKey: "usesLocationServices") as? Bool
-	}
+	lazy var notificationCenter: NotificationCenter = {
+		return NotificationCenter.default
+	}()
 	
-	func encodeWithCoder(_ aCoder: NSCoder!) {
-		aCoder.encode(location, forKey: "location")
-		aCoder.encode(weatherData, forKey: "weatherData")
-		aCoder.encode(currentWeather, forKey: "currentWeather")
-		aCoder.encode(usesLocationServices, forKey: "usesLocationServices")
-	}
-	
-	convenience init(usesLocationServices: Bool = true) {
-		self.init(location: nil, weatherData: nil, usesLocationServices: usesLocationServices)
-	}
-}
-
-class ViewController: UIViewController {
-	
-	var pages: [Page]?
-	
+	let pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
 	
     override func viewDidLoad() {
         super.viewDidLoad()
 
-		loadPages()
 		setupPageViewController()
+		//setupSettingsButton()
+		loadPages()
+		
 		setupPageControl()
+		setupNotificationCenter()
     }
 	
 	override var preferredStatusBarStyle: UIStatusBarStyle {
 		return .lightContent
 	}
-	
 	
 	private func loadPages(){
 		let locationData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
@@ -71,7 +51,6 @@ class ViewController: UIViewController {
 		}
 	}
 	
-	
 	private func initDefaultPages() {
 			let defaultPages = [
 				Page(usesLocationServices: true),
@@ -86,31 +65,39 @@ class ViewController: UIViewController {
 	
 	private func setupPageViewController() {
 		
-		let pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-		
-		pageVC.delegate = self
 		pageVC.dataSource = self
-		
-		guard let pages = pages else {
-			return
-		}
-		if pages.count > 0 {
-			let initalVC = getItemController(0)!
-			pageVC.setViewControllers([initalVC], direction: .forward, animated: true, completion: nil)
-		}
-		
 		addChildViewController(pageVC)
 		self.view.addSubview(pageVC.view)
 		pageVC.didMove(toParentViewController: self)
 	}
-	
-	
 	
 	private func setupPageControl() {
 		let appearance = UIPageControl.appearance()
 		appearance.pageIndicatorTintColor = UIColor.gray
 		appearance.currentPageIndicatorTintColor = UIColor.white
 		appearance.backgroundColor = UIColor(red: 74.0/255, green: 144.0/255, blue: 226.0/255, alpha: 1.0)
+	}
+	
+	private func setupSettingsButton() {
+		let button = UIButton(frame: CGRect())
+		button.setImage(#imageLiteral(resourceName: "Settings"), for: .normal)
+		self.view.addSubview(button)
+		
+		// Set Margins
+		let margins = view.layoutMarginsGuide
+		button.heightAnchor.constraint(equalToConstant: 25).isActive = true
+		button.widthAnchor.constraint(equalToConstant: 25).isActive = true
+		button.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+		button.topAnchor.constraint(equalTo: margins.topAnchor, constant: 40).isActive = true
+		button.translatesAutoresizingMaskIntoConstraints = false
+	}
+	
+	private func setupNotificationCenter() {
+		notificationCenter.addObserver(forName: NSNotification.Name("PagesChanged"), object: nil, queue: nil) { (_) -> Void in
+			DispatchQueue.main.async {
+				self.loadPages()
+			}
+		}
 	}
 	
 	var updatePersistantData: ((Page, Int) -> Void) {
@@ -128,9 +115,21 @@ class ViewController: UIViewController {
 		
 	}
 	
+	func updatePages() {
+		DispatchQueue.main.async {
+			guard let pages = self.pages else {
+				return
+			}
+			if pages.count > 0 {
+				let initalVC = self.getItemController(0)!
+				self.pageVC.setViewControllers([initalVC], direction: .forward, animated: true, completion: nil)
+			}
+		}
+	}
+	
 }
 
-extension ViewController: UIPageViewControllerDataSource {
+extension PageViewController: UIPageViewControllerDataSource {
 	
 	fileprivate func getItemController(_ itemIndex: Int) -> GenericWeatherLocationViewController? {
 		guard var pages = pages else {
@@ -172,9 +171,6 @@ extension ViewController: UIPageViewControllerDataSource {
 		
 		return nil
 	}
-}
-
-extension ViewController: UIPageViewControllerDelegate {
 	
 	// MARK: - Page Indicator
 	
@@ -185,5 +181,5 @@ extension ViewController: UIPageViewControllerDelegate {
 	func presentationIndex(for pageViewController: UIPageViewController) -> Int {
 		return 0
 	}
-	
 }
+

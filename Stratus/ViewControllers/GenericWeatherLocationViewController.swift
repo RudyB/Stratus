@@ -176,7 +176,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		let date = Date()
 		let dayTimePeriodFormatter = DateFormatter()
 		dayTimePeriodFormatter.dateFormat = "EEEE"
-		self.dayLabel.text = dayTimePeriodFormatter.string(from: date)
+		dayLabel.text = dayTimePeriodFormatter.string(from: date)
 		currentTemperatureLabel.text = weather.currentWeather.temperatureString
 		apparentTemperatureValueLabel.text = weather.currentWeather.apparentTemperatureString
 		rainValueLabel.text = weather.currentWeather.precipitationProbabilityString
@@ -192,6 +192,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		dailyHighTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMax))
 		dailyLowTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMin))
 		
+		currentWeatherIcon.isHidden = false
 		rainTitleLabel.isHidden = false
 		rainValueLabel.isHidden = false
 		apparentTemperatureTitleLabel.isHidden = false
@@ -278,6 +279,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 			self.stopRefreshIndicator()
 			initializeView()
 			self.currentLocationLabel.text = "No Internet Connection"
+			self.currentWeatherIcon.isHidden = true
 			showAlert("There is no active connection to the Internet", message: "Please check your connection and try again")
 			return false
 		} else{
