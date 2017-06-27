@@ -67,7 +67,7 @@ extension SettingsPageViewController: UITableViewDataSource {
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = self.locationsTableView.dequeueReusableCell(withIdentifier: "settingsTableViewCell") as! SettingsTableViewCell
-		
+		cell.selectionStyle = .none
 		if let page = pages?[indexPath.row], let location =  page.location {
 			cell.locationLabel.text = location.prettyLocationName
 			if let weather = page.currentWeather {
@@ -92,26 +92,37 @@ extension SettingsPageViewController : UITableViewDelegate {
 	// MARK: UITableViewDelegate
 	
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("Item Selected")
+        if let selectedPage = pages?[indexPath.row], let locName = selectedPage.location?.city {
+            print("Selected: \(locName)")
+        }
 	}
-	
+    
 	func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
 		return true
 	}
 	
 	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
 		if (editingStyle == UITableViewCellEditingStyle.delete) {
+            
 			if indexPath.row != 0 {
-				// handle delete (by removing the data from your array and updating the tableview)
-				tableView.beginUpdates()
-				tableView.deleteRows(at: [indexPath], with: .automatic)
-				pages?.remove(at: indexPath.row)
-				
-				// FIXME: Force Unwrapped locations
-				let locationData = NSKeyedArchiver.archivedData(withRootObject: pages!)
-				UserDefaults.standard.set(locationData, forKey: "savedUserPages")
-				self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
-				tableView.reloadData()
-				tableView.endUpdates()
+                if var pages = pages {
+                    // handle delete (by removing the data from your array and updating the tableview)
+                    tableView.beginUpdates()
+                    pages.remove(at: indexPath.row)
+                    self.pages = pages
+                    tableView.deleteRows(at: [indexPath], with: .automatic)
+                    tableView.endUpdates()
+                    
+                    
+                    
+                    // FIXME: Force Unwrapped locations
+                    let _ = try? Page.savePages(pages: pages)
+                    self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
+                }
+                
+                
+                
 			} else {
 				showAlert(target: self, title: "Error", message: "You Cannot Delete Your Current Location")
 				
