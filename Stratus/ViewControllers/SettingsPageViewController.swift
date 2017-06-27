@@ -25,13 +25,6 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
 		dismiss(animated: true, completion: nil)
 	}
     
-    lazy var encoder: JSONEncoder = {
-        return JSONEncoder()
-    }()
-    
-    lazy var decoder: JSONDecoder = {
-        return JSONDecoder()
-    }()
 	
 	var pages:[Page]?
 	
@@ -52,10 +45,10 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
     
     private func loadPages(){
         
-        let locationData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
-        
-        if let locationData = locationData, let locationArray = try? decoder.decode([Page].self, from: locationData) {
-            self.pages = locationArray
+        do {
+            self.pages = try Page.loadPages()
+        } catch let e {
+            showAlert(target: self, title: "Yikes", message: e.localizedDescription)
         }
     }
 	

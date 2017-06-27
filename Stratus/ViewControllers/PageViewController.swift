@@ -20,14 +20,7 @@ class PageViewController: UIViewController {
 		return NotificationCenter.default
 	}()
     
-    lazy var encoder: JSONEncoder = {
-        return JSONEncoder()
-    }()
-    
-    lazy var decoder: JSONDecoder = {
-        return JSONDecoder()
-    }()
-	
+
 	let pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
 	
     override func viewDidLoad() {
@@ -47,14 +40,12 @@ class PageViewController: UIViewController {
 	
 	private func loadPages(){
         
-		let locationData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
-		
-		if let locationData = locationData, let locationArray = try? decoder.decode([Page].self, from: locationData) {
-			self.pages = locationArray
-		} else {
-			initDefaultPages()
-		}
-	}
+        if let pages = try? Page.loadPages() {
+            self.pages = pages
+        } else {
+            initDefaultPages()
+        }
+    }
 	
 	private func initDefaultPages() {
 			let defaultPages = [
@@ -65,8 +56,11 @@ class PageViewController: UIViewController {
 			]
 		pages = defaultPages
         
-		let locationData = try! encoder.encode(defaultPages)
-		UserDefaults.standard.set(locationData, forKey: "savedUserPages")
+        do {
+            let _ = try Page.savePages(pages: defaultPages)
+        } catch let e {
+            showAlert(target: self, title: "Yikes", message: e.localizedDescription)
+        }
 	}
 	
 	private func setupPageViewController() {
@@ -109,15 +103,15 @@ class PageViewController: UIViewController {
 	var updatePersistantData: ((Page, Int) -> Void) {
 		return {
 			(page, index) in
-			guard let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data, var pageArray = try? self.decoder.decode([Page].self, from: pagesData) else {
-				print("Update Persistant Data Failed")
-				return
-			}
-			pageArray[index].currentWeather = page.currentWeather
-			pageArray[index].location = page.location
-            
-            if let locationData = try? self.encoder.encode(pageArray) {
-                UserDefaults.standard.set(locationData, forKey: "savedUserPages")
+            do {
+                let pages = try Page.loadPages()
+                pages[index].currentWeather = page.currentWeather
+                pages[index].location = page.location
+                let _ = try Page.savePages(pages: pages)
+                return
+            } catch let error {
+                showAlert(target: self, title: "Yikes", message: error.localizedDescription)
+                return
             }
 		}
 		
