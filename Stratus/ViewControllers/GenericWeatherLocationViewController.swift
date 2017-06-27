@@ -187,7 +187,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		visibilityValueLabel.text = weather.currentWeather.visibilityString
 		humidityValueLabel.text = weather.currentWeather.humidityString
 		currentSummaryLabel.text = weather.currentWeather.summary
-		currentWeatherIcon.image = weather.currentWeather.icon
+		currentWeatherIcon.image = weather.currentWeather.icon.image
 		currentLocationLabel.text = page.location?.prettyLocationName!
 		dailyHighTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMax))
 		dailyLowTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMin))
@@ -372,7 +372,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HourlyWeatherCollectionViewCell
 		if let hourlyWeatherData = page.weatherData?.hourlyWeather {
 			cell.timeLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].timeString
-			cell.imageView.image = hourlyWeatherData[(indexPath as NSIndexPath).item].icon
+			cell.imageView.image = hourlyWeatherData[(indexPath as NSIndexPath).item].icon.image
 			cell.temperatureLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].temperatureString
 		}
 		return cell
@@ -393,7 +393,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		if let dailyWeatherData = page.weatherData?.dailyWeather {
 			let index = (indexPath as NSIndexPath).item + 1
 			cell.dayOfTheWeekLabel.text = dailyWeatherData[index].dateString
-			cell.dailyWeatherIcon.image = dailyWeatherData[index].icon
+			cell.dailyWeatherIcon.image = dailyWeatherData[index].icon.image
 			cell.dailyTableViewHighTempLabel.text = dailyWeatherData[index].temperatureMaxString
 			cell.dailyTableViewLowTempLabel.text = dailyWeatherData[index].temperatureMinString
 			return cell

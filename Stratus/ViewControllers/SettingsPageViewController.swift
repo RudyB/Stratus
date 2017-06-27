@@ -24,6 +24,14 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
 	@IBAction func backButtonAction(_ sender: UIBarButtonItem) {
 		dismiss(animated: true, completion: nil)
 	}
+    
+    lazy var encoder: JSONEncoder = {
+        return JSONEncoder()
+    }()
+    
+    lazy var decoder: JSONDecoder = {
+        return JSONDecoder()
+    }()
 	
 	var pages:[Page]?
 	
@@ -41,17 +49,15 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
 		return .lightContent
 	}
 	
-	func loadPages(){
-		let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
-		
-		if let pagesData = pagesData {
-			let pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page]
-			
-			if let pageArray = pageArray {
-				self.pages = pageArray
-			}
-		}
-	}
+    
+    private func loadPages(){
+        
+        let locationData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
+        
+        if let locationData = locationData, let locationArray = try? decoder.decode([Page].self, from: locationData) {
+            self.pages = locationArray
+        }
+    }
 	
 }
 
@@ -72,14 +78,14 @@ extension SettingsPageViewController: UITableViewDataSource {
 		if let page = pages?[indexPath.row], let location =  page.location {
 			cell.locationLabel.text = location.prettyLocationName
 			if let weather = page.currentWeather {
-				cell.weatherIcon.image = weather.icon
+				cell.weatherIcon.image = weather.icon.image
 				cell.currentTemperatureLabel.text = weather.temperatureString
 			}
 			return cell
 		} else {
 			cell.locationLabel.text = "Current Location"
 			if let weather = pages?[indexPath.row].weatherData?.currentWeather {
-				cell.weatherIcon.image = weather.icon
+				cell.weatherIcon.image = weather.icon.image
 				cell.currentTemperatureLabel.text = weather.temperatureString
 			}
 			return cell

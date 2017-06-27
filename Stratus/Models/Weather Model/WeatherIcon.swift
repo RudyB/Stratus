@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum WeatherIcon: String {
+enum WeatherIcon: String, Codable {
 	case ClearDay = "clear-day"
 	case ClearNight = "clear-night"
 	case Rain = "rain"

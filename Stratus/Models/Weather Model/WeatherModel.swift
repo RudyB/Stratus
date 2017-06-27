@@ -8,17 +8,17 @@
 
 import UIKit
 
-protocol Weather: JSONDecodable {
+protocol Weather: Codable, JSONDecodable {
 	var temperature: Double { get }
 	var humidity: Double { get }
 	var precipitationProbability: Double { get }
 	var summary: String { get }
-	var icon: UIImage { get }
+	var icon: WeatherIcon { get }
 	
 	init?(JSON: [String : AnyObject])
 }
 
-struct WeatherData{
+struct WeatherData: Codable{
 	let dailyWeather: [DailyWeather]
 	let hourlyWeather: [HourlyWeather]
 	let currentWeather: CurrentWeather

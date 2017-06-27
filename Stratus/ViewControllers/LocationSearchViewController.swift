@@ -37,7 +37,15 @@ class LocationSearchViewController: UIViewController {
 	lazy var notificationCenter: NotificationCenter = {
 		return NotificationCenter.default
 	}()
-	
+    
+    lazy var encoder: JSONEncoder = {
+        return JSONEncoder()
+    }()
+    
+    lazy var decoder: JSONDecoder = {
+        return JSONDecoder()
+    }()
+    
 	override var preferredStatusBarStyle: UIStatusBarStyle {
 		return .lightContent
 	}
@@ -55,28 +63,24 @@ class LocationSearchViewController: UIViewController {
 	
 	
 	// MARK: Helper Functions
-	
-	func loadPages(){
-		let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
-		
-		if let pagesData = pagesData {
-			let pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page]
-			
-			if let pageArray = pageArray {
-				self.pages = pageArray
-			}
-		}
-	}
-	
-	func savePages() -> Bool {
-		guard let pageArray = pages else {
-			return false
-		}
-		let pageData = NSKeyedArchiver.archivedData(withRootObject: pageArray)
-		UserDefaults.standard.set(pageData, forKey: "savedUserPages")
-		return true
-	}
-	
+    
+    private func loadPages(){
+        
+        let locationData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
+        
+        if let locationData = locationData, let locationArray = try? decoder.decode([Page].self, from: locationData) {
+            self.pages = locationArray
+        }
+    }
+    private func savePages() -> Bool {
+        guard let pageArray = pages, let pageData = try? encoder.encode(pageArray) else {
+            return false
+        }
+        
+        UserDefaults.standard.set(pageData, forKey: "savedUserPages")
+        return true
+    }
+    
 }
 
 extension LocationSearchViewController: UISearchBarDelegate {

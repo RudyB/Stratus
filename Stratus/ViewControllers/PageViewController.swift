@@ -19,6 +19,14 @@ class PageViewController: UIViewController {
 	lazy var notificationCenter: NotificationCenter = {
 		return NotificationCenter.default
 	}()
+    
+    lazy var encoder: JSONEncoder = {
+        return JSONEncoder()
+    }()
+    
+    lazy var decoder: JSONDecoder = {
+        return JSONDecoder()
+    }()
 	
 	let pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
 	
@@ -38,14 +46,11 @@ class PageViewController: UIViewController {
 	}
 	
 	private func loadPages(){
+        
 		let locationData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
 		
-		if let locationData = locationData {
-			let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [Page]
-			
-			if let locationArray = locationArray {
-				self.pages = locationArray
-			}
+		if let locationData = locationData, let locationArray = try? decoder.decode([Page].self, from: locationData) {
+			self.pages = locationArray
 		} else {
 			initDefaultPages()
 		}
@@ -59,7 +64,8 @@ class PageViewController: UIViewController {
 				
 			]
 		pages = defaultPages
-		let locationData = NSKeyedArchiver.archivedData(withRootObject: defaultPages)
+        
+		let locationData = try! encoder.encode(defaultPages)
 		UserDefaults.standard.set(locationData, forKey: "savedUserPages")
 	}
 	
@@ -103,14 +109,16 @@ class PageViewController: UIViewController {
 	var updatePersistantData: ((Page, Int) -> Void) {
 		return {
 			(page, index) in
-			guard let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data, var pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page] else {
+			guard let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data, var pageArray = try? self.decoder.decode([Page].self, from: pagesData) else {
 				print("Update Persistant Data Failed")
 				return
 			}
 			pageArray[index].currentWeather = page.currentWeather
 			pageArray[index].location = page.location
-			let locationData = NSKeyedArchiver.archivedData(withRootObject: pageArray)
-			UserDefaults.standard.set(locationData, forKey: "savedUserPages")
+            
+            if let locationData = try? self.encoder.encode(pageArray) {
+                UserDefaults.standard.set(locationData, forKey: "savedUserPages")
+            }
 		}
 		
 	}

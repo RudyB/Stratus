@@ -8,12 +8,12 @@
 
 import UIKit
 
-struct HourlyWeather {
+struct HourlyWeather: Codable {
 	let temperature: Double
 	let humidity: Double
 	let precipitationProbability: Double
 	let summary: String
-	let icon: UIImage
+	let icon: WeatherIcon
 	let time: Double
 }
 
@@ -27,34 +27,30 @@ extension HourlyWeather: JSONDecodable, Weather {
 			let iconString = JSON["icon"] as? String else {
 				return nil
 		}
-		
-		let icon = WeatherIcon(rawValue: iconString).image
+		self.icon = WeatherIcon(rawValue: iconString)
 		self.temperature = temperature
 		self.humidity = humidity
 		self.precipitationProbability = precipitationProbability
 		self.summary = summary
-		self.icon = icon
 		self.time = time
 	}
+    var temperatureString: String {
+        return "\(Int(temperature))º"
+    }
+    var humidityString: String {
+        let percentageValue = Int(humidity * 100)
+        return "\(percentageValue)%"
+    }
+    var precipitationProbabilityString: String {
+        let percentageValue = Int(precipitationProbability * 100)
+        return "\(percentageValue)%"
+    }
+    var timeString: String {
+        let date = Date(timeIntervalSince1970: time)
+        
+        let dayTimePeriodFormatter = DateFormatter()
+        dayTimePeriodFormatter.dateFormat = "h a"
+        return dayTimePeriodFormatter.string(from: date)
+    }
 }
 
-extension HourlyWeather {
-	var temperatureString: String {
-		return "\(Int(temperature))º"
-	}
-	var humidityString: String {
-		let percentageValue = Int(humidity * 100)
-		return "\(percentageValue)%"
-	}
-	var precipitationProbabilityString: String {
-		let percentageValue = Int(precipitationProbability * 100)
-		return "\(percentageValue)%"
-	}
-	var timeString: String {
-		let date = Date(timeIntervalSince1970: time)
-		
-		let dayTimePeriodFormatter = DateFormatter()
-		dayTimePeriodFormatter.dateFormat = "h a"
-		return dayTimePeriodFormatter.string(from: date)
-	}
-}
