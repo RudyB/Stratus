@@ -108,9 +108,9 @@ extension SettingsPageViewController : UITableViewDelegate {
 	// MARK: UITableViewDelegate
 	
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("Item Selected")
-        if let selectedPage = pages?[indexPath.row], let locName = selectedPage.location?.city {
-            print("Selected: \(locName)")
+        
+        dismiss(animated: true) {
+            self.notificationCenter.post(name: NSNotification.Name("JumpToPage"), object: nil, userInfo: ["page":indexPath.row])
         }
 	}
     
@@ -137,6 +137,7 @@ extension SettingsPageViewController : UITableViewDelegate {
         }
     }
     
+    // Used to check that the proposed cell destination is valid. You cannot replace the current location which should always be the first cell
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
         if proposedDestinationIndexPath.row == 0 {
             return sourceIndexPath

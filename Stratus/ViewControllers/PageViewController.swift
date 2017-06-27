@@ -15,7 +15,9 @@ class PageViewController: UIViewController {
 			updatePages()
 		}
 	}
-	
+    
+    var currentPageIndex: Int = 0
+    
 	lazy var notificationCenter: NotificationCenter = {
 		return NotificationCenter.default
 	}()
@@ -98,6 +100,14 @@ class PageViewController: UIViewController {
 				self.loadPages()
 			}
 		}
+        notificationCenter.addObserver(forName: NSNotification.Name("JumpToPage"), object: nil, queue: nil) { (notification) in
+            if let pageNumber = notification.userInfo?["page"] as? Int {
+                DispatchQueue.main.async {
+                    self.jumptoPage(index: pageNumber)
+                }
+            }
+            
+        }
 	}
 	
 	var updatePersistantData: ((Page, Int) -> Void) {
@@ -128,6 +138,25 @@ class PageViewController: UIViewController {
 			}
 		}
 	}
+    
+    
+    func jumptoPage(index : Int) {
+        print("Attemping to jump to page \(index)")
+        guard let selectedPage = getItemController(index) else {
+            // TODO: Implement Error Handling
+            return
+        }
+        
+        if index < currentPageIndex {
+            currentPageIndex = selectedPage.itemIndex
+            pageVC.setViewControllers([selectedPage], direction: .reverse, animated: true, completion: nil)
+        } else {
+            currentPageIndex = selectedPage.itemIndex
+            pageVC.setViewControllers([selectedPage], direction: .forward, animated: true, completion: nil)
+        }
+        
+        
+    }
 	
 }
 
@@ -149,11 +178,12 @@ extension PageViewController: UIPageViewControllerDataSource {
 		
 		return nil
 	}
-	
+    
 	
 	func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
 		let itemController = viewController as! GenericWeatherLocationViewController
-		
+		currentPageIndex = itemController.itemIndex
+        
 		if itemController.itemIndex > 0 {
 			return getItemController(itemController.itemIndex-1)
 		}
@@ -166,7 +196,7 @@ extension PageViewController: UIPageViewControllerDataSource {
 			return nil
 		}
 		let itemController = viewController as! GenericWeatherLocationViewController
-		
+		currentPageIndex = itemController.itemIndex
 		if itemController.itemIndex+1 < pages.count {
 			return getItemController(itemController.itemIndex+1)
 		}
@@ -181,7 +211,7 @@ extension PageViewController: UIPageViewControllerDataSource {
 	}
 	
 	func presentationIndex(for pageViewController: UIPageViewController) -> Int {
-		return 0
+		return currentPageIndex
 	}
 }
 
