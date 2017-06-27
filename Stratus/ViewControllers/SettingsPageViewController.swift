@@ -20,7 +20,23 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
 	@IBOutlet weak var locationsTableView: UITableView!
 	
 	@IBOutlet weak var navigationBar: UINavigationBar!
-	
+    @IBOutlet weak var editButton: UIBarButtonItem!
+    
+    @IBAction func toggleTableViewEdit(_ sender: Any) {
+        if locationsTableView.isEditing{
+            locationsTableView.setEditing(false, animated: false)
+            editButton.style = .plain
+            editButton.title = "Edit"
+        }
+        else{
+            locationsTableView.setEditing(true, animated: true)
+            editButton.title = "Done"
+            editButton.style =  .done
+        }
+        
+    }
+    
+    
 	@IBAction func backButtonAction(_ sender: UIBarButtonItem) {
 		dismiss(animated: true, completion: nil)
 	}
@@ -64,7 +80,7 @@ extension SettingsPageViewController: UITableViewDataSource {
 		}
 		return pages.count
 	}
-	
+    
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = self.locationsTableView.dequeueReusableCell(withIdentifier: "settingsTableViewCell") as! SettingsTableViewCell
 		cell.selectionStyle = .none
@@ -99,34 +115,71 @@ extension SettingsPageViewController : UITableViewDelegate {
 	}
     
 	func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-		return true
+        if indexPath.row == 0 {
+            return false
+        } else {
+            return true
+        }
 	}
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
+        return .none
+    }
+    
+    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        if indexPath.row == 0 {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+        if proposedDestinationIndexPath.row == 0 {
+            return sourceIndexPath
+        }
+        return proposedDestinationIndexPath
+    }
+    
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        guard var pages = pages else {
+            return
+        }
+        let itemToMove = pages[sourceIndexPath.row]
+        let _ = pages.remove(at: sourceIndexPath.row)
+        pages.insert(itemToMove, at: destinationIndexPath.row)
+        self.pages = pages
+        let _ = try? Page.savePages(pages: pages)
+        self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
+        
+    }
 	
 	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
 		if (editingStyle == UITableViewCellEditingStyle.delete) {
-            
-			if indexPath.row != 0 {
-                if var pages = pages {
-                    // handle delete (by removing the data from your array and updating the tableview)
-                    tableView.beginUpdates()
-                    pages.remove(at: indexPath.row)
-                    self.pages = pages
-                    tableView.deleteRows(at: [indexPath], with: .automatic)
-                    tableView.endUpdates()
-                    
-                    
-                    
-                    // FIXME: Force Unwrapped locations
-                    let _ = try? Page.savePages(pages: pages)
-                    self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
-                }
+            guard var pages = self.pages else {
+                showAlert(target: self, title: "Error", message: "Pages have not yet been loaded.")
+                return
+            }
+            if indexPath.row != 0 {
                 
+                // handle delete (by removing the data from your array and updating the tableview)
+                tableView.beginUpdates()
+                pages.remove(at: indexPath.row)
+                self.pages = pages
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+                tableView.endUpdates()
+                
+                
+                let _ = try? Page.savePages(pages: pages)
+                self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
                 
                 
 			} else {
+                // This else block should be unreacable. The first cell cannot be edited
 				showAlert(target: self, title: "Error", message: "You Cannot Delete Your Current Location")
-				
-				// TODO: Rudy - Make it so the delete that is shown on slide disappears
 			}
 			
 		}
