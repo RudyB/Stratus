@@ -49,6 +49,8 @@ class LocationSearchViewController: UIViewController {
 		tableView.delegate = self
 		tableView.dataSource = self
 		searchBar.delegate = self
+        searchBar.sizeToFit()
+        self.definesPresentationContext = true
 		searchBar.becomeFirstResponder()
 		
 	}

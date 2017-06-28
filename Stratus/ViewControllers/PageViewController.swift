@@ -150,6 +150,10 @@ class PageViewController: UIViewController {
         if index < currentPageIndex {
             currentPageIndex = selectedPage.itemIndex
             pageVC.setViewControllers([selectedPage], direction: .reverse, animated: true, completion: nil)
+        } else if index == currentPageIndex {
+            currentPageIndex = selectedPage.itemIndex
+            pageVC.setViewControllers([selectedPage], direction: .reverse, animated: false, completion: nil)
+            
         } else {
             currentPageIndex = selectedPage.itemIndex
             pageVC.setViewControllers([selectedPage], direction: .forward, animated: true, completion: nil)

@@ -21,11 +21,6 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
 	
 	@IBOutlet weak var navigationBar: UINavigationBar!
 	    
-    
-	@IBAction func backButtonAction(_ sender: UIBarButtonItem) {
-		dismiss(animated: true, completion: nil)
-	}
-    
 	
 	var pages:[Page]?
 	
@@ -253,7 +248,7 @@ extension SettingsPageViewController : UITableViewDelegate {
                 return
             }
             if indexPath.row != 0 {
-                
+            
                 // handle delete (by removing the data from your array and updating the tableview)
                 tableView.beginUpdates()
                 pages.remove(at: indexPath.row)
