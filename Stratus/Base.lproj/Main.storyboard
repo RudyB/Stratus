@@ -27,8 +27,20 @@
                     <view key="view" contentMode="scaleToFill" id="iHa-Dj-RaB">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="3" translatesAutoresizingMaskIntoConstraints="NO" id="IXP-f7-Nb1" customClass="LocationPageControl" customModule="Stratus" customModuleProvider="target">
+                                <rect key="frame" x="168" y="630" width="39" height="37"/>
+                            </pageControl>
+                        </subviews>
                         <color key="backgroundColor" red="0.2901960784" green="0.56470588239999997" blue="0.8862745098" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="IXP-f7-Nb1" firstAttribute="centerX" secondItem="iHa-Dj-RaB" secondAttribute="centerX" id="QSC-H2-QyX"/>
+                            <constraint firstAttribute="bottom" secondItem="IXP-f7-Nb1" secondAttribute="bottom" id="a0M-5Z-dFl"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="locationPageControl" destination="IXP-f7-Nb1" id="2ma-7e-Jze"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AcI-Uf-GMa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

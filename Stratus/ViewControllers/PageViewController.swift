@@ -9,12 +9,16 @@
 import UIKit
 
 class PageViewController: UIViewController {
-	
+    
+    var viewControllers:[GenericWeatherLocationViewController]?
+    
 	var pages: [Page]? {
 		didSet {
 			updatePages()
 		}
 	}
+    
+    @IBOutlet weak var locationPageControl: LocationPageControl!
     
     var currentPageIndex: Int = 0
     
@@ -66,18 +70,17 @@ class PageViewController: UIViewController {
 	}
 	
 	private func setupPageViewController() {
-		
+        pageVC.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height - 35)
 		pageVC.dataSource = self
-		addChildViewController(pageVC)
+        addChildViewController(pageVC)
 		self.view.addSubview(pageVC.view)
-		pageVC.didMove(toParentViewController: self)
 	}
 	
 	private func setupPageControl() {
-		let appearance = UIPageControl.appearance()
-		appearance.pageIndicatorTintColor = UIColor.gray
-		appearance.currentPageIndicatorTintColor = UIColor.white
-		appearance.backgroundColor = UIColor(red: 74.0/255, green: 144.0/255, blue: 226.0/255, alpha: 1.0)
+        
+        view.bringSubview(toFront: locationPageControl)
+        locationPageControl.numberOfPages = pages?.count ?? 0
+        locationPageControl.currentPage = currentPageIndex
 	}
 	
 	private func setupSettingsButton() {
@@ -98,6 +101,7 @@ class PageViewController: UIViewController {
 		notificationCenter.addObserver(forName: NSNotification.Name("PagesChanged"), object: nil, queue: nil) { (_) -> Void in
 			DispatchQueue.main.async {
 				self.loadPages()
+                self.locationPageControl.numberOfPages = self.pages?.count ?? 0
 			}
 		}
         notificationCenter.addObserver(forName: NSNotification.Name("JumpToPage"), object: nil, queue: nil) { (notification) in
@@ -149,13 +153,16 @@ class PageViewController: UIViewController {
         
         if index < currentPageIndex {
             currentPageIndex = selectedPage.itemIndex
+            locationPageControl.currentPage = currentPageIndex
             pageVC.setViewControllers([selectedPage], direction: .reverse, animated: true, completion: nil)
         } else if index == currentPageIndex {
             currentPageIndex = selectedPage.itemIndex
+            locationPageControl.currentPage = currentPageIndex
             pageVC.setViewControllers([selectedPage], direction: .reverse, animated: false, completion: nil)
             
         } else {
             currentPageIndex = selectedPage.itemIndex
+            locationPageControl.currentPage = currentPageIndex
             pageVC.setViewControllers([selectedPage], direction: .forward, animated: true, completion: nil)
         }
         
@@ -187,7 +194,7 @@ extension PageViewController: UIPageViewControllerDataSource {
 	func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
 		let itemController = viewController as! GenericWeatherLocationViewController
 		currentPageIndex = itemController.itemIndex
-        
+        locationPageControl.currentPage = currentPageIndex
 		if itemController.itemIndex > 0 {
 			return getItemController(itemController.itemIndex-1)
 		}
@@ -201,21 +208,13 @@ extension PageViewController: UIPageViewControllerDataSource {
 		}
 		let itemController = viewController as! GenericWeatherLocationViewController
 		currentPageIndex = itemController.itemIndex
+        locationPageControl.currentPage = currentPageIndex
 		if itemController.itemIndex+1 < pages.count {
 			return getItemController(itemController.itemIndex+1)
 		}
 		
 		return nil
 	}
-	
-	// MARK: - Page Indicator
-	
-	func presentationCount(for pageViewController: UIPageViewController) -> Int {
-		return pages?.count ?? 0
-	}
-	
-	func presentationIndex(for pageViewController: UIPageViewController) -> Int {
-		return currentPageIndex
-	}
 }
+
 

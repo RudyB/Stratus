@@ -43,6 +43,11 @@
       "idiom" : "iphone",
       "filename" : "304c6f25433175.5634535718cd7.png",
       "scale" : "3x"
+    },
+    {
+      "idiom" : "ios-marketing",
+      "size" : "1024x1024",
+      "scale" : "1x"
     }
   ],
   "info" : {
