@@ -20,22 +20,7 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
 	@IBOutlet weak var locationsTableView: UITableView!
 	
 	@IBOutlet weak var navigationBar: UINavigationBar!
-    @IBOutlet weak var editButton: UIBarButtonItem!
-    
-    @IBAction func toggleTableViewEdit(_ sender: Any) {
-        if locationsTableView.isEditing{
-            locationsTableView.setEditing(false, animated: false)
-            editButton.style = .plain
-            editButton.title = "Edit"
-        }
-        else{
-            locationsTableView.setEditing(true, animated: true)
-            editButton.title = "Done"
-            editButton.style =  .done
-        }
-        
-    }
-    
+	    
     
 	@IBAction func backButtonAction(_ sender: UIBarButtonItem) {
 		dismiss(animated: true, completion: nil)
@@ -49,6 +34,7 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
 	}()
 	
 	override func viewWillAppear(_ animated: Bool) {
+		addLongGestureRecognizerForTableView()
 		loadPages()
 		locationsTableView.reloadData()
 		self.navigationBar.delegate = self
@@ -67,6 +53,108 @@ class SettingsPageViewController: UIViewController, UINavigationBarDelegate {
             showAlert(target: self, title: "Yikes", message: e.localizedDescription)
         }
     }
+	
+	var snapshot: UIView?
+	var sourceIndexPath: IndexPath?
+	
+	func addLongGestureRecognizerForTableView() {
+		let longPress = UILongPressGestureRecognizer(target: self, action: #selector(SettingsPageViewController.longPressGestureRecognized(longPress:)))
+		self.locationsTableView.addGestureRecognizer(longPress)
+	}
+	
+	
+	@objc
+	func longPressGestureRecognized(longPress: UILongPressGestureRecognizer) {
+		let state = longPress.state
+		let location = longPress.location(in: self.locationsTableView)
+		guard let indexPath = self.locationsTableView.indexPathForRow(at: location) else {
+			self.cleanup()
+			return
+		}
+		switch state {
+		case .began:
+			sourceIndexPath = indexPath
+			guard let cell = self.locationsTableView.cellForRow(at: indexPath) else { return }
+			snapshot = self.customSnapshotFromView(inputView: cell)
+			guard  let snapshot = self.snapshot else { return }
+			var center = cell.center
+			snapshot.center = center
+			snapshot.alpha = 0.0
+			self.locationsTableView.addSubview(snapshot)
+			UIView.animate(withDuration: 0.25, animations: {
+				center.y = location.y
+				snapshot.center = center
+				snapshot.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+				snapshot.alpha = 0.98
+				cell.alpha = 0.0
+			}, completion: { (finished) in
+				cell.isHidden = true
+			})
+			break
+		case .changed:
+			guard  let snapshot = self.snapshot else {
+				return
+			}
+			var center = snapshot.center
+			center.y = location.y
+			snapshot.center = center
+			guard let sourceIndexPath = self.sourceIndexPath  else {
+				return
+			}
+			if indexPath != sourceIndexPath && indexPath.row != 0 {
+				swap(&pages![indexPath.row], &pages![sourceIndexPath.row])
+				self.locationsTableView.moveRow(at: sourceIndexPath, to: indexPath)
+				self.sourceIndexPath = indexPath
+				let _ = try? Page.savePages(pages: pages!)
+				self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
+			}
+			break
+		default:
+			guard let cell = self.locationsTableView.cellForRow(at: indexPath) else {
+				return
+			}
+			guard  let snapshot = self.snapshot else {
+				return
+			}
+			cell.isHidden = false
+			cell.alpha = 0.0
+			UIView.animate(withDuration: 0.25, animations: {
+				snapshot.center = cell.center
+				snapshot.transform = CGAffineTransform.identity
+				snapshot.alpha = 0
+				cell.alpha = 1
+			}, completion: { (finished) in
+				self.cleanup()
+			})
+		}
+	}
+	
+	private func cleanup() {
+		self.sourceIndexPath = nil
+		snapshot?.removeFromSuperview()
+		self.snapshot = nil
+		self.locationsTableView.reloadData()
+	}
+	
+	
+	private func customSnapshotFromView(inputView: UIView) -> UIView? {
+		UIGraphicsBeginImageContextWithOptions(inputView.bounds.size, false, 0)
+		if let CurrentContext = UIGraphicsGetCurrentContext() {
+			inputView.layer.render(in: CurrentContext)
+		}
+		guard let image = UIGraphicsGetImageFromCurrentImageContext() else {
+			UIGraphicsEndImageContext()
+			return nil
+		}
+		UIGraphicsEndImageContext()
+		let snapshot = UIImageView(image: image)
+		snapshot.layer.masksToBounds = false
+		snapshot.layer.cornerRadius = 0
+		snapshot.layer.shadowOffset = CGSize(width: -5, height: 0)
+		snapshot.layer.shadowRadius = 5
+		snapshot.layer.shadowOpacity = 0.4
+		return snapshot
+	}
 	
 }
 
@@ -121,12 +209,13 @@ extension SettingsPageViewController : UITableViewDelegate {
             return true
         }
 	}
+	
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
-        return .none
+        return .delete
     }
     
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-        return false
+        return true
     }
     
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -155,7 +244,6 @@ extension SettingsPageViewController : UITableViewDelegate {
         self.pages = pages
         let _ = try? Page.savePages(pages: pages)
         self.notificationCenter.post(name: Notification.Name("PagesChanged"), object: nil)
-        
     }
 	
 	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
