@@ -21,7 +21,7 @@ class PageViewController: UIViewController {
     var pages = [GenericWeatherLocationViewController]()
 	
 	// Track the current index
-	var currentIndex: Int?
+	var currentIndex: Int? = 0
 	private var pendingIndex: Int?
 	
     
@@ -170,6 +170,7 @@ class PageViewController: UIViewController {
         print("Attemping to jump to page \(index)")
 		
 		guard var currentIndex = currentIndex else {
+			print("Jump to page failed")
 			return
 		}
 		

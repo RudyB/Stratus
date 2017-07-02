@@ -84,6 +84,7 @@ extension LocationSearchViewController: UISearchBarDelegate {
 	// MARK: - SearchBar Delegate Methods
 	
 	func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+		self.resignFirstResponder()
 		self.dismiss(animated: true, completion: nil)
 	}
 	
