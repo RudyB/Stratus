@@ -86,6 +86,7 @@ class GenericWeatherLocationViewController: UIViewController, CLLocationManagerD
 	
 	// MARK: - Default ViewController Methods
 	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 	}
 	
 	override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -168,7 +169,8 @@ class GenericWeatherLocationViewController: UIViewController, CLLocationManagerD
 	
 	func display(_ weather: WeatherData) {
 		if let updatePersistantData = self.updatePersistantData {
-			page.currentWeather = weather.currentWeather
+			print(weather.currentWeather.temperatureString)
+			page.weatherData = weather
 			updatePersistantData(self.page, itemIndex)
 		}
 		if usesLocationServices {

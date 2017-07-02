@@ -11,7 +11,6 @@ import Foundation
 class Page: Codable {
 	var location: Location?
 	var weatherData: WeatherData?
-	var currentWeather: CurrentWeather?
 	var usesLocationServices: Bool? = false
 	
 	init(location: Location?, weatherData: WeatherData? = nil, usesLocationServices: Bool = false) {

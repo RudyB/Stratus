@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.19" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="J51-Fk-RmG">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.17" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="J51-Fk-RmG">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.16"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.14"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -31,11 +31,20 @@
                             <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="3" translatesAutoresizingMaskIntoConstraints="NO" id="IXP-f7-Nb1" customClass="LocationPageControl" customModule="Stratus" customModuleProvider="target">
                                 <rect key="frame" x="168" y="630" width="39" height="37"/>
                             </pageControl>
+                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fUb-dM-kNx">
+                                <rect key="frame" x="340" y="633.5" width="15" height="22"/>
+                                <state key="normal" image="menuIcon"/>
+                                <connections>
+                                    <segue destination="UkG-so-iKI" kind="show" id="Cqx-pJ-VGK"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.2901960784" green="0.56470588239999997" blue="0.8862745098" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="IXP-f7-Nb1" firstAttribute="centerX" secondItem="iHa-Dj-RaB" secondAttribute="centerX" id="QSC-H2-QyX"/>
+                            <constraint firstItem="fUb-dM-kNx" firstAttribute="centerY" secondItem="IXP-f7-Nb1" secondAttribute="centerY" constant="-4" id="ZGC-Nv-eU4"/>
                             <constraint firstAttribute="bottom" secondItem="IXP-f7-Nb1" secondAttribute="bottom" id="a0M-5Z-dFl"/>
+                            <constraint firstAttribute="trailing" secondItem="fUb-dM-kNx" secondAttribute="trailing" constant="20" id="cil-97-pav"/>
                         </constraints>
                     </view>
                     <connections>
@@ -64,17 +73,6 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8Il-Oi-gcs">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="775"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bnr-dG-eJ3" userLabel="Settings Button">
-                                                <rect key="frame" x="376" y="18" width="20" height="20"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="20" id="T4N-E0-sVc"/>
-                                                    <constraint firstAttribute="height" constant="20" id="m1h-lJ-pl8"/>
-                                                </constraints>
-                                                <state key="normal" title="Button" image="Settings"/>
-                                                <connections>
-                                                    <segue destination="UkG-so-iKI" kind="show" action="showDetailViewController:sender:" id="pDy-kN-biZ"/>
-                                                </connections>
-                                            </button>
                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="equalCentering" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="FmQ-5B-hPU">
                                                 <rect key="frame" x="50" y="53" width="314.5" height="60"/>
                                                 <subviews>
@@ -604,7 +602,6 @@
                                             <constraint firstItem="s34-s7-Vgq" firstAttribute="leading" secondItem="8Il-Oi-gcs" secondAttribute="leadingMargin" constant="5" id="WVU-5R-wKS"/>
                                             <constraint firstItem="p7x-Nx-I38" firstAttribute="centerX" secondItem="8Il-Oi-gcs" secondAttribute="centerX" id="Y5P-oh-9kI"/>
                                             <constraint firstItem="D1D-gh-kfU" firstAttribute="top" secondItem="AQ9-xO-CE9" secondAttribute="bottom" constant="3" id="Y7C-sg-H6A"/>
-                                            <constraint firstItem="bnr-dG-eJ3" firstAttribute="top" secondItem="8Il-Oi-gcs" secondAttribute="topMargin" constant="10" id="YVa-ix-W2x"/>
                                             <constraint firstItem="s34-s7-Vgq" firstAttribute="bottom" secondItem="fgd-Is-pQM" secondAttribute="bottom" id="Yev-DF-Ben"/>
                                             <constraint firstItem="w8i-kv-wZX" firstAttribute="bottom" secondItem="pnE-vK-NWJ" secondAttribute="bottom" id="YxD-RE-IHi"/>
                                             <constraint firstItem="w8i-kv-wZX" firstAttribute="bottom" secondItem="pnE-vK-NWJ" secondAttribute="bottom" id="ZuZ-6y-GsI"/>
@@ -613,7 +610,6 @@
                                             <constraint firstItem="x7J-Vf-pNh" firstAttribute="centerY" secondItem="8Il-Oi-gcs" secondAttribute="centerY" id="bMg-OQ-WMm"/>
                                             <constraint firstItem="DW8-1P-x5g" firstAttribute="centerY" secondItem="8Il-Oi-gcs" secondAttribute="centerY" constant="-45.5" id="ctG-6d-qv3"/>
                                             <constraint firstItem="p7x-Nx-I38" firstAttribute="centerX" secondItem="8Il-Oi-gcs" secondAttribute="centerX" id="e35-kb-THK"/>
-                                            <constraint firstAttribute="trailingMargin" secondItem="bnr-dG-eJ3" secondAttribute="trailing" constant="10" id="fK4-Wg-Ofy"/>
                                             <constraint firstItem="x7J-Vf-pNh" firstAttribute="top" secondItem="w8i-kv-wZX" secondAttribute="bottom" constant="6" id="grp-u9-GRX"/>
                                             <constraint firstItem="w8i-kv-wZX" firstAttribute="leading" secondItem="pnE-vK-NWJ" secondAttribute="trailing" constant="15" id="hhF-C4-8th"/>
                                             <constraint firstItem="x7J-Vf-pNh" firstAttribute="leading" secondItem="8Il-Oi-gcs" secondAttribute="leading" id="ie8-LD-4Qf"/>
@@ -794,7 +790,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Uqz-mj-sVe" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1504" y="331"/>
+            <point key="canvasLocation" x="-1494" y="175"/>
         </scene>
         <!--Settings Page View Controller-->
         <scene sceneID="1sH-me-gWu">
@@ -923,7 +919,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="swZ-pK-pNg" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-483" y="331"/>
+            <point key="canvasLocation" x="-2407" y="981"/>
         </scene>
         <!--Location Search View Controller-->
         <scene sceneID="jJE-9O-HQ2">
@@ -973,12 +969,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="QR9-hk-JxS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="423" y="331"/>
+            <point key="canvasLocation" x="-1526" y="981"/>
         </scene>
     </scenes>
     <resources>
         <image name="Separator" width="414" height="1"/>
-        <image name="Settings" width="417" height="417"/>
         <image name="default" width="30" height="30"/>
+        <image name="menuIcon" width="15" height="15"/>
     </resources>
 </document>

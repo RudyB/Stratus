@@ -2,17 +2,17 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "icons8-Full Stop Filled-15.png",
+      "filename" : "icons8-Menu Filled-15.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "icons8-Full Stop Filled-30.png",
+      "filename" : "icons8-Menu Filled-30.png",
       "scale" : "2x"
     },
     {
       "idiom" : "universal",
-      "filename" : "icons8-Full Stop Filled-45.png",
+      "filename" : "icons8-Menu Filled-45.png",
       "scale" : "3x"
     }
   ],

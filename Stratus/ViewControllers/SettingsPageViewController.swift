@@ -169,7 +169,7 @@ extension SettingsPageViewController: UITableViewDataSource {
 		cell.selectionStyle = .none
 		if let page = pages?[indexPath.row], let location =  page.location {
 			cell.locationLabel.text = location.prettyLocationName
-			if let weather = page.currentWeather {
+			if let weather = page.weatherData?.currentWeather {
 				cell.weatherIcon.image = weather.icon.image
 				cell.currentTemperatureLabel.text = weather.temperatureString
 			}

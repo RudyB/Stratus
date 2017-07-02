@@ -21,5 +21,5 @@ protocol Weather: Codable, JSONDecodable {
 struct WeatherData: Codable{
 	let dailyWeather: [DailyWeather]
 	let hourlyWeather: [HourlyWeather]
-	let currentWeather: CurrentWeather
+	var currentWeather: CurrentWeather
 }
