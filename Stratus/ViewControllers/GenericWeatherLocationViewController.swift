@@ -101,7 +101,10 @@ class GenericWeatherLocationViewController: UIViewController, CLLocationManagerD
 			locationManager.onLocationFix = { [weak self] result in
 				switch result {
 				case .failure(let error):
+					self?.endPullToRefresh()
+					self?.stopRefreshIndicator()
 					print(error.localizedDescription)
+					self?.showAlert("Error Updating Location", message: error.localizedDescription)
 					break
 				case .success(let currentLocation):
 					self?.page.location = currentLocation
@@ -229,7 +232,11 @@ class GenericWeatherLocationViewController: UIViewController, CLLocationManagerD
 				locationManager.onLocationFix = { [weak self] result in
 					switch result {
 					case .failure(let error):
+						self?.stopRefreshIndicator()
+						self?.endPullToRefresh()
 						print("Error Updating Location \(error.localizedDescription)")
+						
+						self?.showAlert("Error Updating Location", message: error.localizedDescription)
 						break
 					case .success(let currentLocation):
 						self?.page.location = currentLocation
