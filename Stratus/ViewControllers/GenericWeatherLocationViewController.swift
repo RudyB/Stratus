@@ -26,7 +26,7 @@ class DailyWeatherTableViewCell: UITableViewCell {
 	@IBOutlet weak var dailyTableViewHighTempLabel: UILabel!
 }
 
-class GenericWeatherLocationViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDelegate, UITableViewDataSource, PZPullToRefreshDelegate, CLLocationManagerDelegate {
+class GenericWeatherLocationViewController: UIViewController, CLLocationManagerDelegate {
 	
 	// MARK: - IBOutlets
 	
@@ -71,7 +71,8 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	
 	// MARK: - Class Variables
 	lazy var forecastAPIClient = ForecastAPIClient(APIKey: "cf79775fc8706066d8edada44ca32ccc")
-	
+	let collectionViewCellReuseIdentifier = "hourlyWeatherCollectionViewCell" // also enter this string as the cell identifier in the storyboard
+    
 	var page: Page!
 	var updatePersistantData: ((Page, Int) -> Void)?
 	var refreshHeaderView: PZPullToRefreshView?
@@ -85,6 +86,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	
 	// MARK: - Default ViewController Methods
 	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 	}
 	
 	override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -99,7 +101,10 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 			locationManager.onLocationFix = { [weak self] result in
 				switch result {
 				case .failure(let error):
+					self?.endPullToRefresh()
+					self?.stopRefreshIndicator()
 					print(error.localizedDescription)
+					self?.showAlert("Error Updating Location", message: error.localizedDescription)
 					break
 				case .success(let currentLocation):
 					self?.page.location = currentLocation
@@ -167,7 +172,8 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	
 	func display(_ weather: WeatherData) {
 		if let updatePersistantData = self.updatePersistantData {
-			page.currentWeather = weather.currentWeather
+			print(weather.currentWeather.temperatureString)
+			page.weatherData = weather
 			updatePersistantData(self.page, itemIndex)
 		}
 		if usesLocationServices {
@@ -187,7 +193,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		visibilityValueLabel.text = weather.currentWeather.visibilityString
 		humidityValueLabel.text = weather.currentWeather.humidityString
 		currentSummaryLabel.text = weather.currentWeather.summary
-		currentWeatherIcon.image = weather.currentWeather.icon
+		currentWeatherIcon.image = weather.currentWeather.icon.image
 		currentLocationLabel.text = page.location?.prettyLocationName!
 		dailyHighTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMax))
 		dailyLowTempLabel.text = String(Int(weather.dailyWeather[0].temperatureMin))
@@ -226,7 +232,11 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 				locationManager.onLocationFix = { [weak self] result in
 					switch result {
 					case .failure(let error):
+						self?.stopRefreshIndicator()
+						self?.endPullToRefresh()
 						print("Error Updating Location \(error.localizedDescription)")
+						
+						self?.showAlert("Error Updating Location", message: error.localizedDescription)
 						break
 					case .success(let currentLocation):
 						self?.page.location = currentLocation
@@ -320,26 +330,8 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 		NSLog("Checking Connectivity\nInternet: \(internetEnabled),  Location: \(locationEnabled)")
 		return internetEnabled && locationEnabled
 	}
-	
-	// MARK: - Delegates
-	// MARK:
-	
-	// MARK: PZPullToRefreshDelegate
-	
-	func pullToRefreshDidTrigger(_ view: PZPullToRefreshView) {
-		refreshHeaderView?.isLoading = true
-		NSLog("Weather Call from Refresh Control")
-		updateWeather()
-	}
-	
-	func pullToRefreshLastUpdated(_ view: PZPullToRefreshView) -> Date {
-		return Date()
-	}
-	
-	func endPullToRefresh() {
-		self.refreshHeaderView?.isLoading = false
-		self.refreshHeaderView?.refreshScrollViewDataSourceDidFinishedLoading(self.scrollView)
-	}
+    
+    
 	
 	// MARK: UIScrollViewDelegate
 	
@@ -350,60 +342,7 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 		refreshHeaderView?.refreshScrollViewDidEndDragging(scrollView)
 	}
-	
-	// MARK: UICollectionViewDelegate
-	
-	let reuseIdentifier = "hourlyWeatherCollectionViewCell" // also enter this string as the cell identifier in the storyboard
-	
-	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		if let hourlyWeather = page.weatherData?.hourlyWeather {
-			if hourlyWeather.count > 24 {
-				return 24
-			}
-		} else {
-			self.dayLabel.isHidden = true
-			self.todayLabel.isHidden = true
-		}
-		return 0
-	}
-	
-	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		
-		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! HourlyWeatherCollectionViewCell
-		if let hourlyWeatherData = page.weatherData?.hourlyWeather {
-			cell.timeLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].timeString
-			cell.imageView.image = hourlyWeatherData[(indexPath as NSIndexPath).item].icon
-			cell.temperatureLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].temperatureString
-		}
-		return cell
-	}
-	
-	// MARK: UITableViewDelegate
-	
-	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		if let dailyWeatherData = page.weatherData?.dailyWeather {
-			return dailyWeatherData.count - 1
-		} else {
-			return 0
-		}
-	}
-	
-	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let cell = self.dailyWeatherTableView.dequeueReusableCell(withIdentifier: "dailyWeatherTableViewCell") as! DailyWeatherTableViewCell
-		if let dailyWeatherData = page.weatherData?.dailyWeather {
-			let index = (indexPath as NSIndexPath).item + 1
-			cell.dayOfTheWeekLabel.text = dailyWeatherData[index].dateString
-			cell.dailyWeatherIcon.image = dailyWeatherData[index].icon
-			cell.dailyTableViewHighTempLabel.text = dailyWeatherData[index].temperatureMaxString
-			cell.dailyTableViewLowTempLabel.text = dailyWeatherData[index].temperatureMinString
-			return cell
-		}
-		return cell
-	}
-	
-	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-	}
-	
+    
 	
 	// MARK: - Helper Methods
 	
@@ -423,3 +362,83 @@ class GenericWeatherLocationViewController: UIViewController, UICollectionViewDa
 	}
 	
 }
+
+// MARK: - Delegates
+
+extension GenericWeatherLocationViewController: PZPullToRefreshDelegate {
+    
+    // MARK: PZPullToRefreshDelegate
+    
+    func pullToRefreshDidTrigger(_ view: PZPullToRefreshView) {
+        refreshHeaderView?.isLoading = true
+        NSLog("Weather Call from Refresh Control")
+        updateWeather()
+    }
+    
+    func pullToRefreshLastUpdated(_ view: PZPullToRefreshView) -> Date {
+        return Date()
+    }
+    
+    func endPullToRefresh() {
+        self.refreshHeaderView?.isLoading = false
+        self.refreshHeaderView?.refreshScrollViewDataSourceDidFinishedLoading(self.scrollView)
+    }
+    
+}
+
+extension GenericWeatherLocationViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    
+    // MARK: UICollectionViewDelegate
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let hourlyWeather = page.weatherData?.hourlyWeather {
+            if hourlyWeather.count > 24 {
+                return 24
+            }
+        } else {
+            self.dayLabel.isHidden = true
+            self.todayLabel.isHidden = true
+        }
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: collectionViewCellReuseIdentifier, for: indexPath) as! HourlyWeatherCollectionViewCell
+        if let hourlyWeatherData = page.weatherData?.hourlyWeather {
+            cell.timeLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].timeString
+            cell.imageView.image = hourlyWeatherData[(indexPath as NSIndexPath).item].icon.image
+            cell.temperatureLabel.text = hourlyWeatherData[(indexPath as NSIndexPath).item].temperatureString
+        }
+        return cell
+    }
+    
+    
+}
+
+extension GenericWeatherLocationViewController: UITableViewDataSource, UITableViewDelegate {
+    // MARK: UITableViewDelegate
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let dailyWeatherData = page.weatherData?.dailyWeather {
+            return dailyWeatherData.count - 1
+        } else {
+            return 0
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = self.dailyWeatherTableView.dequeueReusableCell(withIdentifier: "dailyWeatherTableViewCell") as! DailyWeatherTableViewCell
+        if let dailyWeatherData = page.weatherData?.dailyWeather {
+            let index = (indexPath as NSIndexPath).item + 1
+            cell.dayOfTheWeekLabel.text = dailyWeatherData[index].dateString
+            cell.dailyWeatherIcon.image = dailyWeatherData[index].icon.image
+            cell.dailyTableViewHighTempLabel.text = dailyWeatherData[index].temperatureMaxString
+            cell.dailyTableViewLowTempLabel.text = dailyWeatherData[index].temperatureMinString
+            return cell
+        }
+        return cell
+    }
+    
+}
+

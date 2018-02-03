@@ -10,46 +10,72 @@ import UIKit
 
 class PageViewController: UIViewController {
 	
-	var pages: [Page]? {
+	
+	// The custom UIPageControl
+	@IBOutlet weak var locationPageControl: LocationPageControl!
+	
+	// The UIPageViewController
+	var pageController: UIPageViewController!
+	
+	// The pages it contains
+    var pages = [GenericWeatherLocationViewController]()
+	
+	// Track the current index
+	var currentIndex: Int? = 0
+	private var pendingIndex: Int?
+	
+    
+	var pageData: [Page]? {
 		didSet {
-			updatePages()
+			self.updateViewControllers()
 		}
 	}
 	
+    
 	lazy var notificationCenter: NotificationCenter = {
 		return NotificationCenter.default
 	}()
-	
-	let pageVC = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-	
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-		setupPageViewController()
-		//setupSettingsButton()
-		loadPages()
-		
-		setupPageControl()
-		setupNotificationCenter()
-    }
-	
+    
 	override var preferredStatusBarStyle: UIStatusBarStyle {
 		return .lightContent
 	}
 	
-	private func loadPages(){
-		let locationData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
+	
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		
-		if let locationData = locationData {
-			let locationArray = NSKeyedUnarchiver.unarchiveObject(with: locationData) as? [Page]
-			
-			if let locationArray = locationArray {
-				self.pages = locationArray
-			}
-		} else {
-			initDefaultPages()
-		}
 	}
+	
+    override func viewDidLoad() {
+        super.viewDidLoad()
+		
+		// Application State
+		
+		
+		// 1. Load Data
+		loadData()
+		
+		// 2. Create PageViewController
+		setupPageViewController()
+		
+		// 3. Configure Custom PageControl
+		setupPageControl()
+		
+		// 4. Setup Notification Center
+		setupNotificationCenter()
+		
+		
+    }
+	
+	
+	private func loadData(){
+        
+        if let pageData = try? Page.loadPages() {
+            self.pageData = pageData
+        } else {
+            initDefaultPages()
+        }
+    }
 	
 	private func initDefaultPages() {
 			let defaultPages = [
@@ -58,87 +84,125 @@ class PageViewController: UIViewController {
 				Page(location: Location(coordinates: Coordinate(latitude: 34.0522, longitude: -118.2437), city: "Los Angeles", state: "CA"))
 				
 			]
-		pages = defaultPages
-		let locationData = NSKeyedArchiver.archivedData(withRootObject: defaultPages)
-		UserDefaults.standard.set(locationData, forKey: "savedUserPages")
+		self.pageData = defaultPages
+        
+        do {
+            let _ = try Page.savePages(pages: defaultPages)
+        } catch let e {
+            showAlert(target: self, title: "Yikes", message: e.localizedDescription)
+        }
 	}
 	
-	private func setupPageViewController() {
-		
-		pageVC.dataSource = self
-		addChildViewController(pageVC)
-		self.view.addSubview(pageVC.view)
-		pageVC.didMove(toParentViewController: self)
+	func updateViewControllers() {
+		DispatchQueue.main.async {
+			guard let pageData = self.pageData else {
+				return
+			}
+			self.pages = []
+			for index in 0 ..< pageData.count {
+				if let vc = self.getItemController(index) {
+					self.pages.append(vc)
+				}
+			}
+			if !self.pages.isEmpty {
+				self.locationPageControl.numberOfPages = self.pages.count
+				self.pageController.setViewControllers([self.pages.first!], direction: .forward, animated: false, completion: nil)
+			}
+		}
+	}
+	
+	func setupPageViewController() {
+		// Create the page container
+		pageController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
+		pageController.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height - 35)
+		pageController.delegate = self
+		pageController.dataSource = self
+		addChildViewController(pageController)
+		self.view.addSubview(pageController.view)
 	}
 	
 	private func setupPageControl() {
-		let appearance = UIPageControl.appearance()
-		appearance.pageIndicatorTintColor = UIColor.gray
-		appearance.currentPageIndicatorTintColor = UIColor.white
-		appearance.backgroundColor = UIColor(red: 74.0/255, green: 144.0/255, blue: 226.0/255, alpha: 1.0)
+        
+        view.bringSubview(toFront: locationPageControl)
+        locationPageControl.numberOfPages = pages.count
+        locationPageControl.currentPage = 0
 	}
 	
-	private func setupSettingsButton() {
-		let button = UIButton(frame: CGRect())
-		button.setImage(#imageLiteral(resourceName: "Settings"), for: .normal)
-		self.view.addSubview(button)
-		
-		// Set Margins
-		let margins = view.layoutMarginsGuide
-		button.heightAnchor.constraint(equalToConstant: 25).isActive = true
-		button.widthAnchor.constraint(equalToConstant: 25).isActive = true
-		button.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-		button.topAnchor.constraint(equalTo: margins.topAnchor, constant: 40).isActive = true
-		button.translatesAutoresizingMaskIntoConstraints = false
-	}
 	
 	private func setupNotificationCenter() {
 		notificationCenter.addObserver(forName: NSNotification.Name("PagesChanged"), object: nil, queue: nil) { (_) -> Void in
 			DispatchQueue.main.async {
-				self.loadPages()
+				self.loadData()
 			}
 		}
+        notificationCenter.addObserver(forName: NSNotification.Name("JumpToPage"), object: nil, queue: nil) { (notification) in
+            if let pageNumber = notification.userInfo?["page"] as? Int {
+                DispatchQueue.main.async {
+                    self.jumptoPage(index: pageNumber)
+                }
+            }
+            
+        }
 	}
 	
 	var updatePersistantData: ((Page, Int) -> Void) {
 		return {
 			(page, index) in
-			guard let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data, var pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page] else {
-				print("Update Persistant Data Failed")
+            do {
+				
+				var localPageData = self.pageData
+				localPageData?[index] = page
+				let _ = try Page.savePages(pages: localPageData!)
 				return
-			}
-			pageArray[index].currentWeather = page.currentWeather
-			pageArray[index].location = page.location
-			let locationData = NSKeyedArchiver.archivedData(withRootObject: pageArray)
-			UserDefaults.standard.set(locationData, forKey: "savedUserPages")
+				
+            } catch let error {
+                showAlert(target: self, title: "Yikes", message: error.localizedDescription)
+                return
+            }
 		}
 		
 	}
 	
-	func updatePages() {
-		DispatchQueue.main.async {
-			guard let pages = self.pages else {
-				return
-			}
-			if pages.count > 0 {
-				let initalVC = self.getItemController(0)!
-				self.pageVC.setViewControllers([initalVC], direction: .forward, animated: true, completion: nil)
-			}
+	
+	
+    
+    func jumptoPage(index : Int) {
+        print("Attemping to jump to page \(index)")
+		
+		guard var currentIndex = currentIndex else {
+			print("Jump to page failed")
+			return
 		}
-	}
+		
+		let selectedPage = pages[index]
+        
+        if index < currentIndex {
+            pageController.setViewControllers([selectedPage], direction: .reverse, animated: true, completion: nil)
+        } else if index == currentIndex {
+            pageController.setViewControllers([selectedPage], direction: .reverse, animated: false, completion: nil)
+            
+        } else {
+            pageController.setViewControllers([selectedPage], direction: .forward, animated: true, completion: nil)
+        }
+		
+		if let pageIndex = pages.index(of: selectedPage) {
+			currentIndex = pageIndex
+		}
+		locationPageControl.currentPage = currentIndex
+    }
 	
 }
 
 extension PageViewController: UIPageViewControllerDataSource {
 	
 	fileprivate func getItemController(_ itemIndex: Int) -> GenericWeatherLocationViewController? {
-		guard var pages = pages else {
+		guard var pageData = pageData else {
 			return nil
 		}
 		
-		if itemIndex < pages.count {
+		if itemIndex <= pages.count {
 			let pageItemController = self.storyboard!.instantiateViewController(withIdentifier: "genericViewController") as! GenericWeatherLocationViewController
-			pageItemController.page = pages[itemIndex]
+			pageItemController.page = pageData[itemIndex]
 			pageItemController.updateWeather()
 			pageItemController.itemIndex = itemIndex
 			pageItemController.updatePersistantData = updatePersistantData
@@ -147,39 +211,42 @@ extension PageViewController: UIPageViewControllerDataSource {
 		
 		return nil
 	}
-	
+    
 	
 	func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-		let itemController = viewController as! GenericWeatherLocationViewController
-		
-		if itemController.itemIndex > 0 {
-			return getItemController(itemController.itemIndex-1)
+		let currentIndex = pages.index(of: viewController as! GenericWeatherLocationViewController)!
+		if currentIndex == 0 {
+			return nil
 		}
-		
-		return nil
+		let previousIndex = abs((currentIndex - 1 + pages.count) % pages.count)
+		return pages[previousIndex]
 	}
 	
 	func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-		guard let pages = pages else {
+		guard let genericWeatherViewController = viewController as? GenericWeatherLocationViewController, let currentIndex = pages.index(of: genericWeatherViewController) else {
 			return nil
 		}
-		let itemController = viewController as! GenericWeatherLocationViewController
-		
-		if itemController.itemIndex+1 < pages.count {
-			return getItemController(itemController.itemIndex+1)
+		if currentIndex == pages.count-1 {
+			return nil
 		}
-		
-		return nil
+		let nextIndex = abs((currentIndex + 1) % pages.count)
+		return pages[nextIndex]
+	}
+}
+
+extension PageViewController: UIPageViewControllerDelegate {
+	
+	func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
+		pendingIndex = pages.index(of: pendingViewControllers.first! as! GenericWeatherLocationViewController)
 	}
 	
-	// MARK: - Page Indicator
-	
-	func presentationCount(for pageViewController: UIPageViewController) -> Int {
-		return pages?.count ?? 0
-	}
-	
-	func presentationIndex(for pageViewController: UIPageViewController) -> Int {
-		return 0
+	func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+		if completed {
+			currentIndex = pendingIndex
+			if let index = currentIndex {
+				locationPageControl.currentPage = index
+			}
+		}
 	}
 }
 

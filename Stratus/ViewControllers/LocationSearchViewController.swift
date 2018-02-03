@@ -37,7 +37,7 @@ class LocationSearchViewController: UIViewController {
 	lazy var notificationCenter: NotificationCenter = {
 		return NotificationCenter.default
 	}()
-	
+    
 	override var preferredStatusBarStyle: UIStatusBarStyle {
 		return .lightContent
 	}
@@ -49,40 +49,42 @@ class LocationSearchViewController: UIViewController {
 		tableView.delegate = self
 		tableView.dataSource = self
 		searchBar.delegate = self
+        searchBar.sizeToFit()
+        self.definesPresentationContext = true
 		searchBar.becomeFirstResponder()
 		
 	}
 	
 	
 	// MARK: Helper Functions
-	
-	func loadPages(){
-		let pagesData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data
-		
-		if let pagesData = pagesData {
-			let pageArray = NSKeyedUnarchiver.unarchiveObject(with: pagesData) as? [Page]
-			
-			if let pageArray = pageArray {
-				self.pages = pageArray
-			}
-		}
-	}
-	
-	func savePages() -> Bool {
-		guard let pageArray = pages else {
-			return false
-		}
-		let pageData = NSKeyedArchiver.archivedData(withRootObject: pageArray)
-		UserDefaults.standard.set(pageData, forKey: "savedUserPages")
-		return true
-	}
-	
+    
+    private func loadPages(){
+        do {
+            self.pages = try Page.loadPages()
+        } catch let e {
+            showAlert(target: self, title: "Yikes", message: e.localizedDescription)
+        }
+    }
+    private func savePages() -> Bool {
+        guard let pageArray = pages else {
+            return false
+        }
+        
+        do {
+            return try Page.savePages(pages: pageArray)
+        } catch let e {
+            showAlert(target: self, title: "Yikes", message: e.localizedDescription)
+            return false
+        }
+    }
+    
 }
 
 extension LocationSearchViewController: UISearchBarDelegate {
 	// MARK: - SearchBar Delegate Methods
 	
 	func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+		self.resignFirstResponder()
 		self.dismiss(animated: true, completion: nil)
 	}
 	

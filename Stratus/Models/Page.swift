@@ -8,10 +8,9 @@
 
 import Foundation
 
-class Page: NSObject {
+class Page: Codable {
 	var location: Location?
 	var weatherData: WeatherData?
-	var currentWeather: CurrentWeather?
 	var usesLocationServices: Bool? = false
 	
 	init(location: Location?, weatherData: WeatherData? = nil, usesLocationServices: Bool = false) {
@@ -20,21 +19,23 @@ class Page: NSObject {
 		self.usesLocationServices = usesLocationServices
 	}
 	
-	required init(coder aDecoder: NSCoder) {
-		self.location = aDecoder.decodeObject(forKey: "location") as? Location
-		self.weatherData = aDecoder.decodeObject(forKey: "weatherData") as? WeatherData
-		self.currentWeather = aDecoder.decodeObject(forKey: "currentWeather") as? CurrentWeather
-		self.usesLocationServices = aDecoder.decodeObject(forKey: "usesLocationServices") as? Bool
-	}
-	
-	func encodeWithCoder(_ aCoder: NSCoder!) {
-		aCoder.encode(location, forKey: "location")
-		aCoder.encode(weatherData, forKey: "weatherData")
-		aCoder.encode(currentWeather, forKey: "currentWeather")
-		aCoder.encode(usesLocationServices, forKey: "usesLocationServices")
-	}
-	
 	convenience init(usesLocationServices: Bool = true) {
 		self.init(location: nil, weatherData: nil, usesLocationServices: usesLocationServices)
 	}
+    
+    static func loadPages() throws -> [Page] {
+        
+        guard let pageData = UserDefaults.standard.object(forKey: "savedUserPages") as? Data else {
+            throw NSError(domain: "co.rudybermudez.stratus.page", code: 10, userInfo: nil)
+        }
+        return try JSONDecoder().decode([Page].self, from: pageData)
+    }
+    
+    static func savePages(pages: [Page]) throws -> Bool {
+        
+        let pageData = try JSONEncoder().encode(pages)
+        UserDefaults.standard.set(pageData, forKey: "savedUserPages")
+        return true
+    }
+    
 }

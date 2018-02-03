@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		471AFDA31E81F33600030353 /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471AFDA21E81F33600030353 /* Page.swift */; };
+		4721B4861F0441F600DE93CD /* LocationPageControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4721B4851F0441F600DE93CD /* LocationPageControl.swift */; };
 		478F00CB1DC0797400C58290 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478F00CA1DC0797400C58290 /* AppDelegate.swift */; };
 		478F00D01DC0797400C58290 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 478F00CE1DC0797400C58290 /* Main.storyboard */; };
 		478F00D21DC0797400C58290 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 478F00D11DC0797400C58290 /* Assets.xcassets */; };
@@ -34,6 +35,7 @@
 
 /* Begin PBXFileReference section */
 		471AFDA21E81F33600030353 /* Page.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
+		4721B4851F0441F600DE93CD /* LocationPageControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPageControl.swift; sourceTree = "<group>"; };
 		478F00C71DC0797400C58290 /* Stratus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stratus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		478F00CA1DC0797400C58290 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		478F00CF1DC0797400C58290 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -76,6 +78,7 @@
 			children = (
 				47AB1E501E7F6BF9004D78DA /* CustomAlert.swift */,
 				47AB1E4E1E7F6BF1004D78DA /* Error.swift */,
+				4721B4851F0441F600DE93CD /* LocationPageControl.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -194,12 +197,13 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Rudy Bermudez";
 				TargetAttributes = {
 					478F00C61DC0797400C58290 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = NZ8449Y9W6;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -252,6 +256,7 @@
 				478F00FC1DC07AEB00C58290 /* ActivityIndicatorHelper.swift in Sources */,
 				47C72F831E8054CB00FF029D /* PageViewController.swift in Sources */,
 				478F00F21DC07AA600C58290 /* LocationSearchViewController.swift in Sources */,
+				4721B4861F0441F600DE93CD /* LocationPageControl.swift in Sources */,
 				478F00EB1DC07A4400C58290 /* WeatherModel.swift in Sources */,
 				478F00E11DC07A0400C58290 /* CurrentWeather.swift in Sources */,
 				471AFDA31E81F33600030353 /* Page.swift in Sources */,
@@ -294,7 +299,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -302,7 +309,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -345,7 +356,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -353,7 +366,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -389,7 +406,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = co.rudybermudez.Stratus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -402,7 +420,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = co.rudybermudez.Stratus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
