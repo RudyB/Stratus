@@ -1,9 +1,16 @@
 # ![Icon](http://i.imgur.com/WOoMCO4.png) Stratus
 Minimal iOS Weather App Programmed in Swift
 
-![Swift](http://img.shields.io/badge/swift-3.0-brightgreen.svg)
+![Swift](http://img.shields.io/badge/swift-4.0-brightgreen.svg)
 [![Travis](https://img.shields.io/travis/RudyBermudez/Stratus/master.svg)](https://travis-ci.org/RudyBermudez/Stratus)
-[![Twitter Follow](https://img.shields.io/twitter/follow/Rudayb23.svg?style=social&label=Follow&maxAge=2592000?style=flat-square)](https://twitter.com/rudayb23)
 
+## Background
+I created this application for the purpose of recreating the default iOS weather app.
 
-![Imgur](http://i.imgur.com/0PqBU2z.png)
+This application utilizes:
+* Location Services
+* Forecast.io API
+* Data Persistance with UserDefaults
+* Advanced UI with Page-views, Scroll-views, & Stack-views
+
+<img src="https://imgur.com/bXzGf1f.png" width=300> <img src="https://imgur.com/t5C2NP0.png" width=300>
