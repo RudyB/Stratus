@@ -13,4 +13,5 @@ This application utilizes:
 * Data Persistance with UserDefaults
 * Advanced UI with Page-views, Scroll-views, & Stack-views
 
+## Screenshots
 <img src="https://imgur.com/bXzGf1f.png" width=300> <img src="https://imgur.com/t5C2NP0.png" width=300>
